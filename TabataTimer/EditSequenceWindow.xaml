@@ -40,7 +40,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="80"/>
                 </Grid.ColumnDefinitions>
-                <Slider x:Name="WaitSlider" Grid.Column="0" Minimum="0" Maximum="120"
+                <Slider x:Name="WaitSlider" Grid.Column="0" Minimum="0" Maximum="30"
+                        Style="{StaticResource ModernSlider}"
                         TickFrequency="5" IsSnapToTickEnabled="True"
                         VerticalAlignment="Center" Margin="0,0,12,0"
                         ValueChanged="WaitSlider_ValueChanged"
@@ -58,7 +59,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="80"/>
                 </Grid.ColumnDefinitions>
-                <Slider x:Name="RepeatsSlider" Grid.Column="0" Minimum="1" Maximum="100"
+                <Slider x:Name="RepeatsSlider" Grid.Column="0" Minimum="1" Maximum="30"
+                        Style="{StaticResource ModernSlider}"
                         TickFrequency="1" IsSnapToTickEnabled="True"
                         VerticalAlignment="Center" Margin="0,0,12,0"
                         ValueChanged="RepeatsSlider_ValueChanged"
@@ -76,7 +78,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="80"/>
                 </Grid.ColumnDefinitions>
-                <Slider x:Name="WorkSlider" Grid.Column="0" Minimum="1" Maximum="300"
+                <Slider x:Name="WorkSlider" Grid.Column="0" Minimum="1" Maximum="60"
+                        Style="{StaticResource ModernSlider}"
                         TickFrequency="5" IsSnapToTickEnabled="True"
                         VerticalAlignment="Center" Margin="0,0,12,0"
                         ValueChanged="WorkSlider_ValueChanged"
@@ -94,7 +97,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="80"/>
                 </Grid.ColumnDefinitions>
-                <Slider x:Name="RestSlider" Grid.Column="0" Minimum="1" Maximum="300"
+                <Slider x:Name="RestSlider" Grid.Column="0" Minimum="1" Maximum="60"
+                        Style="{StaticResource ModernSlider}"
                         TickFrequency="5" IsSnapToTickEnabled="True"
                         VerticalAlignment="Center" Margin="0,0,12,0"
                         ValueChanged="RestSlider_ValueChanged"

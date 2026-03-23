@@ -106,6 +106,7 @@
                 <TextBlock Text="🔊  VOLUME" FontSize="10" FontWeight="SemiBold"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                 <Slider x:Name="VolumeSlider" Minimum="0" Maximum="1" SmallChange="0.05"
+                        Style="{StaticResource ModernSlider}"
                         Value="0.8"
                         VerticalAlignment="Center"
                         Foreground="{StaticResource AccentBrush}"

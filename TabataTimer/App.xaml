@@ -155,6 +155,7 @@
         <!-- Slider Style -->
         <Style x:Key="ModernSlider" TargetType="Slider">
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="IsMoveToPointEnabled" Value="True"/>
         </Style>
 
     </Application.Resources>
