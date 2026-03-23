@@ -1,106 +1,155 @@
 using System.IO;
-using System.Media;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace TabataTimer.Services
 {
     /// <summary>
-    /// Generates PCM WAV tones in memory and plays them via SoundPlayer.
-    /// Three distinct sounds:
-    ///   Warning beep  : short high tick (880 Hz, 80 ms)
-    ///   Phase-end beep: double mid beep (660 Hz, 120 ms x2)
-    ///   Final fanfare : ascending C5-E5-G5 (523/659/784 Hz)
+    /// Plays synthesized tones via WPF MediaPlayer, which correctly routes
+    /// to the Windows default audio device (including HDMI/Bluetooth outputs).
+    /// Tones are written as temporary WAV files and played through MediaPlayer.
     /// </summary>
     public class AudioService
     {
         private double _volume = 0.8;
+        private readonly string _tempDir;
+
+        // Pre-generate the three sound files once at startup
+        private readonly string _warningFile;
+        private readonly string _phaseEndFile;
+        private readonly string _finalFile;
+
+        public AudioService()
+        {
+            _tempDir = Path.Combine(Path.GetTempPath(), "TabataTimer");
+            Directory.CreateDirectory(_tempDir);
+
+            _warningFile  = Path.Combine(_tempDir, "warning.wav");
+            _phaseEndFile = Path.Combine(_tempDir, "phaseend.wav");
+            _finalFile    = Path.Combine(_tempDir, "final.wav");
+
+            // Warning: short high tick
+            WriteWav(_warningFile, new[] { (880.0, 90) });
+
+            // Phase end: double mid beep
+            WriteWav(_phaseEndFile, new[] { (660.0, 130), (0.0, 80), (660.0, 130) });
+
+            // Final: ascending C5-E5-G5 fanfare
+            WriteWav(_finalFile, new[] { (523.0, 210), (0.0, 60), (659.0, 210), (0.0, 60), (784.0, 480) });
+        }
 
         public void SetVolume(double volume) => _volume = Math.Clamp(volume, 0.0, 1.0);
 
-        // ── Public API ──────────────────────────────────────────────────────
+        public void PlayWarningBeep()  => PlayFile(_warningFile);
+        public void PlayPhaseEndBeep() => PlayFile(_phaseEndFile);
+        public void PlayFinalBeep()    => PlayFile(_finalFile);
 
-        public void PlayWarningBeep()  => PlayAsync(() => PlayTone(880, 80));
+        // ── Playback ────────────────────────────────────────────────────────
 
-        public void PlayPhaseEndBeep() => PlayAsync(() =>
+        private void PlayFile(string path)
         {
-            PlayTone(660, 120);
-            Thread.Sleep(80);
-            PlayTone(660, 120);
-        });
+            if (_volume <= 0 || !File.Exists(path)) return;
 
-        public void PlayFinalBeep() => PlayAsync(() =>
-        {
-            PlayTone(523, 200);   // C5
-            Thread.Sleep(60);
-            PlayTone(659, 200);   // E5
-            Thread.Sleep(60);
-            PlayTone(784, 450);   // G5 (held)
-        });
+            // MediaPlayer must be created and used on an STA thread with a
+            // Dispatcher. Spin up a dedicated STA thread for each play call.
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var player = new MediaPlayer();
+                    player.Volume = _volume;
+                    player.Open(new Uri(path, UriKind.Absolute));
 
-        // ── Internals ───────────────────────────────────────────────────────
+                    // Wait for it to open then play
+                    player.MediaOpened += (s, e) => player.Play();
 
-        private static void PlayAsync(Action action) => Task.Run(action);
+                    // Run a Dispatcher loop so MediaPlayer events fire
+                    // Exit after a generous timeout (longest sound ~1.1 s)
+                    var dispatcher = Dispatcher.CurrentDispatcher;
+                    dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Background);
+
+                    // Give it time to actually play before shutting dispatcher
+                    // We push a delayed shutdown instead
+                    var timer = new DispatcherTimer(DispatcherPriority.Normal, dispatcher)
+                    {
+                        Interval = TimeSpan.FromMilliseconds(1500)
+                    };
+                    timer.Tick += (s, e) =>
+                    {
+                        timer.Stop();
+                        player.Stop();
+                        player.Close();
+                        dispatcher.InvokeShutdown();
+                    };
+                    timer.Start();
+
+                    // Restart open in case MediaOpened already fired
+                    player.Play();
+
+                    Dispatcher.Run();
+                }
+                catch { /* never crash UI over audio */ }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+        }
+
+        // ── WAV synthesis ───────────────────────────────────────────────────
 
         /// <summary>
-        /// Synthesises a sine-wave tone and plays it synchronously on the
-        /// calling (background) thread via SoundPlayer.
+        /// Writes a multi-segment WAV. Each tuple is (frequency Hz, duration ms).
+        /// Use frequency = 0 for silence gaps.
         /// </summary>
-        private void PlayTone(double frequency, int durationMs)
+        private static void WriteWav(string path, IEnumerable<(double freq, int ms)> segments)
         {
-            if (_volume <= 0) return;
+            const int sampleRate    = 44100;
+            const int channels      = 1;
+            const int bitsPerSample = 16;
 
-            try
+            var allSamples = new List<short>();
+
+            foreach (var (freq, ms) in segments)
             {
-                const int sampleRate    = 44100;
-                const int channels      = 1;
-                const int bitsPerSample = 16;
-                int sampleCount = (int)(sampleRate * durationMs / 1000.0);
+                int count     = (int)(sampleRate * ms / 1000.0);
+                int fadeStart = (int)(count * 0.88);
 
-                // Short linear fade-out over the last 10 % to kill end-click
-                int fadeStart = (int)(sampleCount * 0.90);
-
-                using var ms = new MemoryStream();
-                using var bw = new BinaryWriter(ms);
-
-                // RIFF / WAV header
-                int dataSize   = sampleCount * channels * (bitsPerSample / 8);
-                int byteRate   = sampleRate  * channels * (bitsPerSample / 8);
-                int blockAlign = channels * (bitsPerSample / 8);
-
-                bw.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
-                bw.Write(36 + dataSize);
-                bw.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
-                bw.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
-                bw.Write(16);
-                bw.Write((short)1);                // PCM
-                bw.Write((short)channels);
-                bw.Write(sampleRate);
-                bw.Write(byteRate);
-                bw.Write((short)blockAlign);
-                bw.Write((short)bitsPerSample);
-                bw.Write(System.Text.Encoding.ASCII.GetBytes("data"));
-                bw.Write(dataSize);
-
-                // PCM samples
-                for (int i = 0; i < sampleCount; i++)
+                for (int i = 0; i < count; i++)
                 {
-                    double t        = (double)i / sampleRate;
-                    double envelope = (i >= fadeStart)
-                        ? 1.0 - (double)(i - fadeStart) / (sampleCount - fadeStart)
+                    double envelope = (i >= fadeStart && freq > 0)
+                        ? 1.0 - (double)(i - fadeStart) / (count - fadeStart)
                         : 1.0;
-                    double sample = Math.Sin(2 * Math.PI * frequency * t)
-                                    * envelope * _volume;
-                    bw.Write((short)(sample * short.MaxValue));
+                    double sample = (freq > 0)
+                        ? Math.Sin(2 * Math.PI * freq * i / sampleRate) * envelope * 0.8
+                        : 0.0;
+                    allSamples.Add((short)(sample * short.MaxValue));
                 }
-
-                ms.Position = 0;
-
-                using var player = new SoundPlayer(ms);
-                player.PlaySync();
             }
-            catch
-            {
-                // Never crash the UI over a failed beep
-            }
+
+            int dataSize   = allSamples.Count * (bitsPerSample / 8);
+            int byteRate   = sampleRate * channels * (bitsPerSample / 8);
+            int blockAlign = channels * (bitsPerSample / 8);
+
+            using var fs = new FileStream(path, FileMode.Create, FileAccess.Write);
+            using var bw = new BinaryWriter(fs);
+
+            bw.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+            bw.Write(36 + dataSize);
+            bw.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
+            bw.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
+            bw.Write(16);
+            bw.Write((short)1);
+            bw.Write((short)channels);
+            bw.Write(sampleRate);
+            bw.Write(byteRate);
+            bw.Write((short)blockAlign);
+            bw.Write((short)bitsPerSample);
+            bw.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+            bw.Write(dataSize);
+
+            foreach (var s in allSamples)
+                bw.Write(s);
         }
     }
 }

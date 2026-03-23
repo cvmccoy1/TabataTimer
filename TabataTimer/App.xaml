@@ -4,32 +4,32 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <!-- Dark Fitness Theme Colors -->
-        <SolidColorBrush x:Key="BackgroundBrush" Color="#0D0D0D"/>
-        <SolidColorBrush x:Key="SurfaceBrush" Color="#1A1A1A"/>
-        <SolidColorBrush x:Key="CardBrush" Color="#222222"/>
-        <SolidColorBrush x:Key="AccentBrush" Color="#FF4500"/>
-        <SolidColorBrush x:Key="AccentHoverBrush" Color="#FF6020"/>
-        <SolidColorBrush x:Key="GreenBrush" Color="#22C55E"/>
-        <SolidColorBrush x:Key="GreenHoverBrush" Color="#16A34A"/>
-        <SolidColorBrush x:Key="BlueBrush" Color="#3B82F6"/>
-        <SolidColorBrush x:Key="BlueHoverBrush" Color="#2563EB"/>
-        <SolidColorBrush x:Key="YellowBrush" Color="#EAB308"/>
-        <SolidColorBrush x:Key="YellowHoverBrush" Color="#CA8A04"/>
-        <SolidColorBrush x:Key="RedBrush" Color="#EF4444"/>
-        <SolidColorBrush x:Key="RedHoverBrush" Color="#DC2626"/>
-        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F5F5F5"/>
-        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A0A0A0"/>
-        <SolidColorBrush x:Key="BorderBrush" Color="#333333"/>
+        <SolidColorBrush x:Key="BackgroundBrush"     Color="#0D0D0D"/>
+        <SolidColorBrush x:Key="SurfaceBrush"        Color="#1A1A1A"/>
+        <SolidColorBrush x:Key="CardBrush"           Color="#222222"/>
+        <SolidColorBrush x:Key="AccentBrush"         Color="#FF4500"/>
+        <SolidColorBrush x:Key="AccentHoverBrush"    Color="#FF6020"/>
+        <SolidColorBrush x:Key="GreenBrush"          Color="#22C55E"/>
+        <SolidColorBrush x:Key="GreenHoverBrush"     Color="#16A34A"/>
+        <SolidColorBrush x:Key="BlueBrush"           Color="#3B82F6"/>
+        <SolidColorBrush x:Key="BlueHoverBrush"      Color="#2563EB"/>
+        <SolidColorBrush x:Key="YellowBrush"         Color="#EAB308"/>
+        <SolidColorBrush x:Key="YellowHoverBrush"    Color="#CA8A04"/>
+        <SolidColorBrush x:Key="RedBrush"            Color="#EF4444"/>
+        <SolidColorBrush x:Key="RedHoverBrush"       Color="#DC2626"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush"    Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush"  Color="#A0A0A0"/>
+        <SolidColorBrush x:Key="BorderBrush"         Color="#333333"/>
         <SolidColorBrush x:Key="InputBackgroundBrush" Color="#2A2A2A"/>
 
-        <!-- Button Style Base -->
+        <!-- Base Button Style -->
         <Style x:Key="BaseButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-            <Setter Property="FontFamily" Value="Segoe UI Semibold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="16,8"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground"       Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontFamily"       Value="Segoe UI Semibold"/>
+            <Setter Property="FontSize"         Value="13"/>
+            <Setter Property="Padding"          Value="16,8"/>
+            <Setter Property="BorderThickness"  Value="0"/>
+            <Setter Property="Cursor"           Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -39,7 +39,7 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsPressed" Value="True">
+                            <Trigger Property="IsPressed"  Value="True">
                                 <Setter Property="Opacity" Value="0.8"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -108,14 +108,14 @@
 
         <!-- TextBox Style -->
         <Style x:Key="ModernTextBox" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Background"       Value="{StaticResource InputBackgroundBrush}"/>
+            <Setter Property="Foreground"       Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush"      Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness"  Value="1"/>
+            <Setter Property="Padding"          Value="10,8"/>
+            <Setter Property="FontFamily"       Value="Segoe UI"/>
+            <Setter Property="FontSize"         Value="14"/>
+            <Setter Property="CaretBrush"       Value="{StaticResource AccentBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -135,26 +135,26 @@
             </Setter>
         </Style>
 
-        <!-- Label Style -->
+        <!-- Field Label Style (no TextTransform or LetterSpacing — not valid in WPF) -->
         <Style x:Key="FieldLabel" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="Foreground"   Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="FontFamily"   Value="Segoe UI"/>
+            <Setter Property="FontSize"     Value="11"/>
+            <Setter Property="FontWeight"   Value="SemiBold"/>
+            <Setter Property="Margin"       Value="0,0,0,4"/>
         </Style>
 
         <!-- CheckBox Style -->
         <Style x:Key="ModernCheckBox" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground"              Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontFamily"              Value="Segoe UI"/>
+            <Setter Property="FontSize"                Value="13"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
-        <!-- Slider Style -->
+        <!-- Slider Style — IsMoveToPointEnabled makes click-on-track jump to that position -->
         <Style x:Key="ModernSlider" TargetType="Slider">
-            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground"          Value="{StaticResource AccentBrush}"/>
             <Setter Property="IsMoveToPointEnabled" Value="True"/>
         </Style>
 

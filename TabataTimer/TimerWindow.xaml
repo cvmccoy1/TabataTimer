@@ -10,15 +10,15 @@
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>  <!-- Sequence Name -->
-            <RowDefinition Height="Auto"/>  <!-- Phase label -->
-            <RowDefinition Height="Auto"/>  <!-- Main countdown timer -->
-            <RowDefinition Height="Auto"/>  <!-- Total timer + Round -->
-            <RowDefinition Height="Auto"/>  <!-- Divider -->
-            <RowDefinition Height="Auto"/>  <!-- Volume + Warning -->
-            <RowDefinition Height="Auto"/>  <!-- Divider -->
-            <RowDefinition Height="*"/>     <!-- Spacer -->
-            <RowDefinition Height="Auto"/>  <!-- Buttons -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Sequence Name -->
@@ -29,7 +29,7 @@
                        HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <!-- Phase Label (WAIT / WORK / REST) -->
+        <!-- Phase Label (WAIT / WORK / REST / READY / DONE) -->
         <Border Grid.Row="1" HorizontalAlignment="Center"
                 Background="{StaticResource CardBrush}"
                 CornerRadius="20" Padding="24,8" Margin="0,0,0,12">
@@ -91,7 +91,8 @@
         </Grid>
 
         <!-- Divider -->
-        <Border Grid.Row="4" Height="1" Background="{StaticResource BorderBrush}" Margin="0,0,0,16"/>
+        <Border Grid.Row="4" Height="1"
+                Background="{StaticResource BorderBrush}" Margin="0,0,0,16"/>
 
         <!-- Volume + Warning Beep -->
         <Grid Grid.Row="5" Margin="0,0,0,16">
@@ -105,15 +106,15 @@
             <StackPanel Grid.Column="0">
                 <TextBlock Text="🔊  VOLUME" FontSize="10" FontWeight="SemiBold"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                <Slider x:Name="VolumeSlider" Minimum="0" Maximum="1" SmallChange="0.05"
+                <Slider x:Name="VolumeSlider"
                         Style="{StaticResource ModernSlider}"
+                        Minimum="0" Maximum="1" SmallChange="0.05"
                         Value="0.8"
                         VerticalAlignment="Center"
-                        Foreground="{StaticResource AccentBrush}"
                         ValueChanged="VolumeSlider_ValueChanged"/>
             </StackPanel>
 
-            <!-- Warning Beep checkbox -->
+            <!-- Warning Beep -->
             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                 <TextBlock Text="⚠  WARNING BEEP" FontSize="10" FontWeight="SemiBold"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
@@ -126,7 +127,8 @@
         </Grid>
 
         <!-- Divider -->
-        <Border Grid.Row="6" Height="1" Background="{StaticResource BorderBrush}" Margin="0,0,0,0"/>
+        <Border Grid.Row="6" Height="1"
+                Background="{StaticResource BorderBrush}"/>
 
         <!-- Spacer -->
         <Grid Grid.Row="7"/>
