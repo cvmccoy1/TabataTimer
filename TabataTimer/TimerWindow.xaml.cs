@@ -34,9 +34,10 @@ namespace TabataTimer
 
         public TimerWindow(TabataSequence sequence, AppSettings settings)
         {
-            InitializeComponent();
             _sequence = sequence;
             _settings = settings;
+
+            InitializeComponent();
 
             SequenceNameText.Text = sequence.Name.ToUpperInvariant();
             VolumeSlider.Value = settings.Volume;

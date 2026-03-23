@@ -27,8 +27,7 @@
                     <TextBlock Text="⏱" FontSize="28" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <StackPanel>
                         <TextBlock Text="TABATA TIMER" FontSize="22" FontWeight="Bold"
-                                   Foreground="{StaticResource AccentBrush}" FontFamily="Segoe UI Black"
-                                   LetterSpacing="3"/>
+                                   Foreground="{StaticResource AccentBrush}" FontFamily="Segoe UI Black"/>
                         <TextBlock Text="Interval Training Sequences"
                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
                     </StackPanel>

@@ -24,7 +24,7 @@
         <!-- Sequence Name -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20" HorizontalAlignment="Center">
             <TextBlock x:Name="SequenceNameText" Text="SEQUENCE NAME"
-                       FontSize="13" FontWeight="SemiBold" LetterSpacing="3"
+                       FontSize="13" FontWeight="SemiBold"
                        Foreground="{StaticResource TextSecondaryBrush}"
                        HorizontalAlignment="Center"/>
         </StackPanel>
@@ -35,7 +35,7 @@
                 CornerRadius="20" Padding="24,8" Margin="0,0,0,12">
             <TextBlock x:Name="PhaseLabel" Text="REST"
                        FontSize="22" FontWeight="Bold"
-                       FontFamily="Segoe UI Black" LetterSpacing="4"
+                       FontFamily="Segoe UI Black"
                        Foreground="{StaticResource AccentBrush}"
                        HorizontalAlignment="Center"/>
         </Border>
@@ -66,7 +66,7 @@
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="TOTAL TIME" FontSize="10" FontWeight="SemiBold"
                                Foreground="{StaticResource TextSecondaryBrush}"
-                               HorizontalAlignment="Center" Margin="0,0,0,4" LetterSpacing="2"/>
+                               HorizontalAlignment="Center" Margin="0,0,0,4"/>
                     <TextBlock x:Name="TotalDisplay" Text="00:00"
                                FontSize="32" FontWeight="Bold" FontFamily="Consolas"
                                Foreground="{StaticResource BlueBrush}"
@@ -81,7 +81,7 @@
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="ROUND" FontSize="10" FontWeight="SemiBold"
                                Foreground="{StaticResource TextSecondaryBrush}"
-                               HorizontalAlignment="Center" Margin="0,0,0,4" LetterSpacing="2"/>
+                               HorizontalAlignment="Center" Margin="0,0,0,4"/>
                     <TextBlock x:Name="RoundDisplay" Text="0 of 0"
                                FontSize="32" FontWeight="Bold" FontFamily="Consolas"
                                Foreground="{StaticResource GreenBrush}"
@@ -103,7 +103,7 @@
 
             <!-- Volume -->
             <StackPanel Grid.Column="0">
-                <TextBlock Text="🔊  VOLUME" FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                <TextBlock Text="🔊  VOLUME" FontSize="10" FontWeight="SemiBold"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                 <Slider x:Name="VolumeSlider" Minimum="0" Maximum="1" SmallChange="0.05"
                         Value="0.8"
@@ -114,7 +114,7 @@
 
             <!-- Warning Beep checkbox -->
             <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                <TextBlock Text="⚠  WARNING BEEP" FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                <TextBlock Text="⚠  WARNING BEEP" FontSize="10" FontWeight="SemiBold"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                 <CheckBox x:Name="WarningBeepCheck" Content="3-second countdown"
                           Style="{StaticResource ModernCheckBox}"
