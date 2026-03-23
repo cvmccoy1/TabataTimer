@@ -1,0 +1,168 @@
+<Window x:Class="TabataTimer.TimerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Tabata Timer — Running" Height="620" Width="520"
+        ResizeMode="CanMinimize"
+        Background="{StaticResource BackgroundBrush}"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI"
+        Closing="Window_Closing">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Sequence Name -->
+            <RowDefinition Height="Auto"/>  <!-- Phase label -->
+            <RowDefinition Height="Auto"/>  <!-- Main countdown timer -->
+            <RowDefinition Height="Auto"/>  <!-- Total timer + Round -->
+            <RowDefinition Height="Auto"/>  <!-- Divider -->
+            <RowDefinition Height="Auto"/>  <!-- Volume + Warning -->
+            <RowDefinition Height="Auto"/>  <!-- Divider -->
+            <RowDefinition Height="*"/>     <!-- Spacer -->
+            <RowDefinition Height="Auto"/>  <!-- Buttons -->
+        </Grid.RowDefinitions>
+
+        <!-- Sequence Name -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20" HorizontalAlignment="Center">
+            <TextBlock x:Name="SequenceNameText" Text="SEQUENCE NAME"
+                       FontSize="13" FontWeight="SemiBold" LetterSpacing="3"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Phase Label (WAIT / WORK / REST) -->
+        <Border Grid.Row="1" HorizontalAlignment="Center"
+                Background="{StaticResource CardBrush}"
+                CornerRadius="20" Padding="24,8" Margin="0,0,0,12">
+            <TextBlock x:Name="PhaseLabel" Text="REST"
+                       FontSize="22" FontWeight="Bold"
+                       FontFamily="Segoe UI Black" LetterSpacing="4"
+                       Foreground="{StaticResource AccentBrush}"
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Main Countdown Timer -->
+        <Border Grid.Row="2" HorizontalAlignment="Center"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                CornerRadius="16" Padding="40,20" Margin="0,0,0,20">
+            <TextBlock x:Name="CountdownDisplay" Text="00:00"
+                       FontSize="96" FontWeight="Bold"
+                       FontFamily="Consolas"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Total Timer + Round Row -->
+        <Grid Grid.Row="3" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Total elapsed time -->
+            <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    CornerRadius="10" Padding="16,12" Margin="0,0,8,0">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="TOTAL TIME" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" Margin="0,0,0,4" LetterSpacing="2"/>
+                    <TextBlock x:Name="TotalDisplay" Text="00:00"
+                               FontSize="32" FontWeight="Bold" FontFamily="Consolas"
+                               Foreground="{StaticResource BlueBrush}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Round counter -->
+            <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    CornerRadius="10" Padding="16,12" Margin="8,0,0,0">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="ROUND" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" Margin="0,0,0,4" LetterSpacing="2"/>
+                    <TextBlock x:Name="RoundDisplay" Text="0 of 0"
+                               FontSize="32" FontWeight="Bold" FontFamily="Consolas"
+                               Foreground="{StaticResource GreenBrush}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Divider -->
+        <Border Grid.Row="4" Height="1" Background="{StaticResource BorderBrush}" Margin="0,0,0,16"/>
+
+        <!-- Volume + Warning Beep -->
+        <Grid Grid.Row="5" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Volume -->
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="🔊  VOLUME" FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                <Slider x:Name="VolumeSlider" Minimum="0" Maximum="1" SmallChange="0.05"
+                        Value="0.8"
+                        VerticalAlignment="Center"
+                        Foreground="{StaticResource AccentBrush}"
+                        ValueChanged="VolumeSlider_ValueChanged"/>
+            </StackPanel>
+
+            <!-- Warning Beep checkbox -->
+            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <TextBlock Text="⚠  WARNING BEEP" FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                <CheckBox x:Name="WarningBeepCheck" Content="3-second countdown"
+                          Style="{StaticResource ModernCheckBox}"
+                          IsChecked="True"
+                          Checked="WarningBeep_Changed"
+                          Unchecked="WarningBeep_Changed"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Divider -->
+        <Border Grid.Row="6" Height="1" Background="{StaticResource BorderBrush}" Margin="0,0,0,0"/>
+
+        <!-- Spacer -->
+        <Grid Grid.Row="7"/>
+
+        <!-- Control Buttons -->
+        <Grid Grid.Row="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" x:Name="StartButton" Content="▶  START"
+                    Style="{StaticResource GreenButton}"
+                    Padding="0,14" FontSize="14"
+                    Click="Start_Click"/>
+
+            <Button Grid.Column="2" x:Name="PauseButton" Content="⏸  PAUSE"
+                    Style="{StaticResource YellowButton}"
+                    Padding="0,14" FontSize="14"
+                    IsEnabled="False"
+                    Click="Pause_Click"/>
+
+            <Button Grid.Column="4" x:Name="StopButton" Content="⏹  STOP"
+                    Style="{StaticResource RedButton}"
+                    Padding="0,14" FontSize="14"
+                    IsEnabled="False"
+                    Click="Stop_Click"/>
+
+            <Button Grid.Column="6" Content="✕  EXIT"
+                    Style="{StaticResource GhostButton}"
+                    Padding="0,14" FontSize="14"
+                    Click="Exit_Click"/>
+        </Grid>
+    </Grid>
+</Window>

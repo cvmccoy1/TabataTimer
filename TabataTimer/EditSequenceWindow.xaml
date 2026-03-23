@@ -1,0 +1,131 @@
+<Window x:Class="TabataTimer.EditSequenceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sequence Editor" Height="540" Width="460"
+        ResizeMode="NoResize"
+        Background="{StaticResource BackgroundBrush}"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI">
+
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock x:Name="TitleText" Text="NEW SEQUENCE"
+                       FontSize="20" FontWeight="Bold"
+                       Foreground="{StaticResource AccentBrush}"
+                       FontFamily="Segoe UI Black" LetterSpacing="2"/>
+            <TextBlock Text="Configure your interval training sequence"
+                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Form Fields -->
+        <StackPanel Grid.Row="1" VerticalAlignment="Top">
+
+            <!-- Name -->
+            <TextBlock Text="SEQUENCE NAME" Style="{StaticResource FieldLabel}"/>
+            <TextBox x:Name="NameBox" Style="{StaticResource ModernTextBox}"
+                     Margin="0,0,0,16" MaxLength="60"
+                     TextChanged="ValidateForm"/>
+
+            <!-- Wait to Start -->
+            <TextBlock Text="WAIT TO START (seconds)" Style="{StaticResource FieldLabel}"/>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Slider x:Name="WaitSlider" Grid.Column="0" Minimum="0" Maximum="120"
+                        TickFrequency="5" IsSnapToTickEnabled="True"
+                        VerticalAlignment="Center" Margin="0,0,12,0"
+                        ValueChanged="WaitSlider_ValueChanged"
+                        Foreground="{StaticResource AccentBrush}"/>
+                <TextBox x:Name="WaitBox" Grid.Column="1" Style="{StaticResource ModernTextBox}"
+                         TextAlignment="Center"
+                         PreviewTextInput="NumberOnly_PreviewInput"
+                         TextChanged="WaitBox_TextChanged"/>
+            </Grid>
+
+            <!-- Repeats -->
+            <TextBlock Text="REPEATS" Style="{StaticResource FieldLabel}"/>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Slider x:Name="RepeatsSlider" Grid.Column="0" Minimum="1" Maximum="100"
+                        TickFrequency="1" IsSnapToTickEnabled="True"
+                        VerticalAlignment="Center" Margin="0,0,12,0"
+                        ValueChanged="RepeatsSlider_ValueChanged"
+                        Foreground="{StaticResource AccentBrush}"/>
+                <TextBox x:Name="RepeatsBox" Grid.Column="1" Style="{StaticResource ModernTextBox}"
+                         TextAlignment="Center"
+                         PreviewTextInput="NumberOnly_PreviewInput"
+                         TextChanged="RepeatsBox_TextChanged"/>
+            </Grid>
+
+            <!-- Work Time -->
+            <TextBlock Text="WORK TIME (seconds)" Style="{StaticResource FieldLabel}"/>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Slider x:Name="WorkSlider" Grid.Column="0" Minimum="1" Maximum="300"
+                        TickFrequency="5" IsSnapToTickEnabled="True"
+                        VerticalAlignment="Center" Margin="0,0,12,0"
+                        ValueChanged="WorkSlider_ValueChanged"
+                        Foreground="{StaticResource AccentBrush}"/>
+                <TextBox x:Name="WorkBox" Grid.Column="1" Style="{StaticResource ModernTextBox}"
+                         TextAlignment="Center"
+                         PreviewTextInput="NumberOnly_PreviewInput"
+                         TextChanged="WorkBox_TextChanged"/>
+            </Grid>
+
+            <!-- Rest Time -->
+            <TextBlock Text="REST TIME (seconds)" Style="{StaticResource FieldLabel}"/>
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Slider x:Name="RestSlider" Grid.Column="0" Minimum="1" Maximum="300"
+                        TickFrequency="5" IsSnapToTickEnabled="True"
+                        VerticalAlignment="Center" Margin="0,0,12,0"
+                        ValueChanged="RestSlider_ValueChanged"
+                        Foreground="{StaticResource AccentBrush}"/>
+                <TextBox x:Name="RestBox" Grid.Column="1" Style="{StaticResource ModernTextBox}"
+                         TextAlignment="Center"
+                         PreviewTextInput="NumberOnly_PreviewInput"
+                         TextChanged="RestBox_TextChanged"/>
+            </Grid>
+
+            <!-- Validation message -->
+            <TextBlock x:Name="ValidationMessage" Text=""
+                       Foreground="#EF4444" FontSize="11" Margin="0,8,0,0"
+                       TextWrapping="Wrap" Visibility="Collapsed"/>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <Grid Grid.Row="2" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="CANCEL" Style="{StaticResource GhostButton}"
+                    Padding="0,12" FontSize="14"
+                    Click="Cancel_Click"/>
+            <Button Grid.Column="2" x:Name="OkButton" Content="✓  SAVE SEQUENCE"
+                    Style="{StaticResource AccentButton}"
+                    Padding="0,12" FontSize="14"
+                    IsEnabled="False"
+                    Click="Ok_Click"/>
+        </Grid>
+    </Grid>
+</Window>
