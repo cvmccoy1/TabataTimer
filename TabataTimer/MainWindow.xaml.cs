@@ -15,7 +15,33 @@ namespace TabataTimer
             InitializeComponent();
             _settings = SettingsManager.Load();
             RefreshList();
+
+            Loaded += (s, e) => ApplyLayout(_settings.MainWindowLayout);
+            Closing += (s, e) =>
+            {
+                _settings.MainWindowLayout = CaptureLayout();
+                SettingsManager.Save(_settings);
+            };
         }
+
+        private void ApplyLayout(WindowLayout layout)
+        {
+            if (!double.IsNaN(layout.Left) && !double.IsNaN(layout.Top))
+            {
+                Left = layout.Left;
+                Top = layout.Top;
+            }
+            Width = Math.Max(layout.Width, MinWidth);
+            Height = Math.Max(layout.Height, MinHeight);
+        }
+
+        private WindowLayout CaptureLayout() => new()
+        {
+            Left = Left,
+            Top = Top,
+            Width = Width,
+            Height = Height
+        };
 
         private void RefreshList()
         {
@@ -97,12 +123,17 @@ namespace TabataTimer
             editBtn.Margin = new Thickness(8, 0, 0, 0);
             editBtn.Click += (s, e) => EditSequence(seq);
 
+            var copyBtn = CreateButton("⎘  COPY", "#6B7280", "#4B5563", 13);
+            copyBtn.Margin = new Thickness(8, 0, 0, 0);
+            copyBtn.Click += (s, e) => DuplicateSequence(seq);
+
             var deleteBtn = CreateButton("🗑  DELETE", "#EF4444", "#DC2626", 13);
             deleteBtn.Margin = new Thickness(8, 0, 0, 0);
             deleteBtn.Click += (s, e) => DeleteSequence(seq);
 
             btnPanel.Children.Add(startBtn);
             btnPanel.Children.Add(editBtn);
+            btnPanel.Children.Add(copyBtn);
             btnPanel.Children.Add(deleteBtn);
 
             Grid.SetColumn(btnPanel, 1);
@@ -188,7 +219,7 @@ namespace TabataTimer
 
         private void NewSequence_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new EditSequenceWindow(null, _settings.Sequences);
+            var dlg = new EditSequenceWindow(null, _settings, _settings.Sequences);
             dlg.Owner = this;
             if (dlg.ShowDialog() == true && dlg.ResultSequence != null)
             {
@@ -200,7 +231,7 @@ namespace TabataTimer
 
         private void EditSequence(TabataSequence seq)
         {
-            var dlg = new EditSequenceWindow(seq, _settings.Sequences);
+            var dlg = new EditSequenceWindow(seq, _settings, _settings.Sequences);
             dlg.Owner = this;
             if (dlg.ShowDialog() == true && dlg.ResultSequence != null)
             {
@@ -210,6 +241,36 @@ namespace TabataTimer
                 SettingsManager.Save(_settings);
                 RefreshList();
             }
+        }
+
+        private void DuplicateSequence(TabataSequence seq)
+        {
+            // Generate unique name: "Copy of X" → "Copy of X (2)" → ...
+            string baseName = "Copy of " + seq.Name;
+            var existingNames = _settings.Sequences
+                .Select(s => s.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            string newName = baseName;
+            for (int n = 2; existingNames.Contains(newName); n++)
+                newName = $"{baseName} ({n})";
+
+            var clone = new TabataSequence
+            {
+                Id = Guid.NewGuid(),
+                Name = newName,
+                WaitSeconds = seq.WaitSeconds,
+                Repeats = seq.Repeats,
+                WorkSeconds = seq.WorkSeconds,
+                RestSeconds = seq.RestSeconds,
+                CallOutMode = seq.CallOutMode,
+                CallOutList = new List<string>(seq.CallOutList),
+                VoiceName = seq.VoiceName
+            };
+
+            _settings.Sequences.Add(clone);
+            SettingsManager.Save(_settings);
+            RefreshList();
         }
 
         private void DeleteSequence(TabataSequence seq)
