@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace TabataTimer.Models
 {
     public class TabataSequence
@@ -25,7 +23,7 @@ namespace TabataTimer.Models
 
     public class AppSettings
     {
-        public List<TabataSequence> Sequences { get; set; } = new();
+        public List<TabataSequence> Sequences { get; set; } = [];
         public double Volume { get; set; } = 0.8;
         public bool WarningBeepEnabled { get; set; } = true;
     }

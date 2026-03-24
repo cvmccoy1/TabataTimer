@@ -29,13 +29,13 @@ namespace TabataTimer.Services
             _finalFile    = Path.Combine(_tempDir, "final.wav");
 
             // Warning: short high tick
-            WriteWav(_warningFile, new[] { (880.0, 90) });
+            WriteWav(_warningFile, [(880.0, 90)]);
 
             // Phase end: double mid beep
-            WriteWav(_phaseEndFile, new[] { (660.0, 130), (0.0, 80), (660.0, 130) });
+            WriteWav(_phaseEndFile, [(660.0, 130), (0.0, 80), (660.0, 130)]);
 
             // Final: ascending C5-E5-G5 fanfare
-            WriteWav(_finalFile, new[] { (523.0, 210), (0.0, 60), (659.0, 210), (0.0, 60), (784.0, 480) });
+            WriteWav(_finalFile, [(523.0, 210), (0.0, 60), (659.0, 210), (0.0, 60), (784.0, 480)]);
         }
 
         public void SetVolume(double volume) => _volume = Math.Clamp(volume, 0.0, 1.0);
@@ -56,8 +56,10 @@ namespace TabataTimer.Services
             {
                 try
                 {
-                    var player = new MediaPlayer();
-                    player.Volume = _volume;
+                    var player = new MediaPlayer
+                    {
+                        Volume = _volume
+                    };
                     player.Open(new Uri(path, UriKind.Absolute));
 
                     // Wait for it to open then play
@@ -66,7 +68,7 @@ namespace TabataTimer.Services
                     // Run a Dispatcher loop so MediaPlayer events fire
                     // Exit after a generous timeout (longest sound ~1.1 s)
                     var dispatcher = Dispatcher.CurrentDispatcher;
-                    dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Background);
+                    dispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
 
                     // Give it time to actually play before shutting dispatcher
                     // We push a delayed shutdown instead
