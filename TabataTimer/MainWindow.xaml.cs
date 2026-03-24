@@ -78,6 +78,7 @@ namespace TabataTimer
             var outer = new Grid();
             outer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             outer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            outer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             // Left: name + stats
             var leftPanel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
@@ -107,12 +108,31 @@ namespace TabataTimer
             Grid.SetColumn(leftPanel, 0);
             outer.Children.Add(leftPanel);
 
-            // Right: buttons
+            // Move Up / Down buttons (center column)
+            var movePanel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(8, 0, 8, 0)
+            };
+
+            var moveUpBtn = CreateMoveButton("▲", seq);
+            moveUpBtn.Click += (s, e) => MoveSequence(seq, -1);
+
+            var moveDownBtn = CreateMoveButton("▼", seq);
+            moveDownBtn.Click += (s, e) => MoveSequence(seq, 1);
+
+            movePanel.Children.Add(moveUpBtn);
+            movePanel.Children.Add(moveDownBtn);
+            Grid.SetColumn(movePanel, 1);
+            outer.Children.Add(movePanel);
+
+            // Right: action buttons
             var btnPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(16, 0, 0, 0)
+                Margin = new Thickness(0, 0, 0, 0)
             };
 
             var startBtn = CreateButton("▶  START", "#22C55E", "#16A34A", 14);
@@ -123,7 +143,7 @@ namespace TabataTimer
             editBtn.Margin = new Thickness(8, 0, 0, 0);
             editBtn.Click += (s, e) => EditSequence(seq);
 
-            var copyBtn = CreateButton("⎘  COPY", "#6B7280", "#4B5563", 13);
+            var copyBtn = CreateButton("⎘  COPY", "#0EA5E9", "#0284C7", 13);
             copyBtn.Margin = new Thickness(8, 0, 0, 0);
             copyBtn.Click += (s, e) => DuplicateSequence(seq);
 
@@ -136,11 +156,38 @@ namespace TabataTimer
             btnPanel.Children.Add(copyBtn);
             btnPanel.Children.Add(deleteBtn);
 
-            Grid.SetColumn(btnPanel, 1);
+            Grid.SetColumn(btnPanel, 2);
             outer.Children.Add(btnPanel);
 
             card.Child = outer;
             return card;
+        }
+
+        private Button CreateMoveButton(string symbol, TabataSequence seq)
+        {
+            return new Button
+            {
+                Content = symbol,
+                Background = new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x3A)),
+                Foreground = new SolidColorBrush(Color.FromRgb(0xA0, 0xA0, 0xA0)),
+                FontSize = 11,
+                Padding = new Thickness(8, 3, 8, 3),
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Margin = new Thickness(0, 0, 0, 2)
+            };
+        }
+
+        private void MoveSequence(TabataSequence seq, int direction)
+        {
+            var idx = _settings.Sequences.FindIndex(s => s.Id == seq.Id);
+            var newIdx = idx + direction;
+            if (newIdx < 0 || newIdx >= _settings.Sequences.Count) return;
+
+            _settings.Sequences.RemoveAt(idx);
+            _settings.Sequences.Insert(newIdx, seq);
+            SettingsManager.Save(_settings);
+            RefreshList();
         }
 
         private static UIElement BuildStat(string label, string value, string colorHex)

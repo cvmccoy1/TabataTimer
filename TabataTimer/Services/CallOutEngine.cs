@@ -18,6 +18,9 @@ namespace TabataTimer.Services
         private readonly List<string> _randomPool = new();
         private readonly List<string> _randomUsed = new();
 
+        /// <summary>The exercise text for the current (most recently selected) Work phase.</summary>
+        public string? CurrentExercise { get; private set; }
+
         public CallOutEngine(TabataSequence sequence)
         {
             _sequence = sequence;
@@ -43,13 +46,15 @@ namespace TabataTimer.Services
             if (_sequence.CallOutMode == CallOutMode.Off) return null;
             if (_sequence.CallOutList == null || _sequence.CallOutList.Count == 0) return null;
 
-            return _sequence.CallOutMode switch
+            string? result = _sequence.CallOutMode switch
             {
                 CallOutMode.Follow  => NextFollow(),
                 CallOutMode.Repeat  => NextRepeat(),
                 CallOutMode.Random  => NextRandom(),
                 _                   => null
             };
+            CurrentExercise = result;
+            return result;
         }
 
         // ── Follow ────────────────────────────────────────────────────────────

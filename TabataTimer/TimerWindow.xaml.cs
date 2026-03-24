@@ -59,10 +59,16 @@ namespace TabataTimer
 
             Loaded += (s, e) =>
             {
-                if (!double.IsNaN(_settings.TimerWindowLayout.Width))
-                    Width = Math.Max(_settings.TimerWindowLayout.Width, MinWidth);
-                if (!double.IsNaN(_settings.TimerWindowLayout.Height))
-                    Height = Math.Max(_settings.TimerWindowLayout.Height, MinHeight);
+                var layout = _settings.TimerWindowLayout;
+                if (!double.IsNaN(layout.Left) && !double.IsNaN(layout.Top))
+                {
+                    Left = layout.Left;
+                    Top = layout.Top;
+                }
+                if (!double.IsNaN(layout.Width) && layout.Width > 0)
+                    Width = Math.Max(layout.Width, MinWidth);
+                if (!double.IsNaN(layout.Height) && layout.Height > 0)
+                    Height = Math.Max(layout.Height, MinHeight);
             };
             Closing += (s, e) =>
             {
@@ -284,6 +290,7 @@ namespace TabataTimer
             CountdownDisplay.Text       = "00:00";
             CountdownDisplay.Foreground = new SolidColorBrush(DoneColor);
             RoundDisplay.Text           = $"{_sequence.Repeats} of {_sequence.Repeats}";
+            ExerciseLabel.Visibility    = Visibility.Collapsed;
 
             StartButton.IsEnabled = true;
             PauseButton.IsEnabled = false;
@@ -298,7 +305,10 @@ namespace TabataTimer
             if (_sequence.CallOutMode == CallOutMode.Off) return;
             var exercise = _callOut.Next();
             if (!string.IsNullOrWhiteSpace(exercise))
+            {
+                ExerciseLabel.Text = exercise.ToUpperInvariant();
                 _tts.Speak(exercise);
+            }
         }
 
         // ── Phase UI ─────────────────────────────────────────────────────────
@@ -310,21 +320,25 @@ namespace TabataTimer
                     PhaseLabel.Text             = "READY";
                     PhaseLabel.Foreground       = new SolidColorBrush(WaitColor);
                     CountdownDisplay.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
+                    ExerciseLabel.Visibility    = Visibility.Collapsed;
                     break;
                 case TimerPhase.Wait:
                     PhaseLabel.Text             = "WAIT";
                     PhaseLabel.Foreground       = new SolidColorBrush(WaitColor);
                     CountdownDisplay.Foreground = new SolidColorBrush(WaitColor);
+                    ExerciseLabel.Visibility    = Visibility.Collapsed;
                     break;
                 case TimerPhase.Work:
                     PhaseLabel.Text             = "WORK";
                     PhaseLabel.Foreground       = new SolidColorBrush(WorkColor);
                     CountdownDisplay.Foreground = new SolidColorBrush(WorkColor);
+                    ExerciseLabel.Visibility    = Visibility.Visible;
                     break;
                 case TimerPhase.Rest:
                     PhaseLabel.Text             = "REST";
                     PhaseLabel.Foreground       = new SolidColorBrush(RestColor);
                     CountdownDisplay.Foreground = new SolidColorBrush(RestColor);
+                    ExerciseLabel.Visibility    = Visibility.Collapsed;
                     break;
             }
         }

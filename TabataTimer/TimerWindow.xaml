@@ -4,7 +4,7 @@
         Title="Tabata Timer — Running" Height="620" Width="520"
         ResizeMode="CanMinimize"
         Background="{StaticResource BackgroundBrush}"
-        WindowStartupLocation="CenterOwner"
+        WindowStartupLocation="Manual"
         FontFamily="Segoe UI"
         Closing="Window_Closing">
 
@@ -40,8 +40,18 @@
                        HorizontalAlignment="Center"/>
         </Border>
 
+        <!-- Call Out Exercise Name — visible only during Work phase -->
+        <TextBlock x:Name="ExerciseLabel"
+                   Grid.Row="2"
+                   Text=""
+                   FontSize="14" FontWeight="SemiBold"
+                   Foreground="{StaticResource GreenBrush}"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,8"
+                   Visibility="Collapsed"/>
+
         <!-- Main Countdown Timer -->
-        <Border Grid.Row="2" HorizontalAlignment="Center"
+        <Border Grid.Row="3" HorizontalAlignment="Center"
                 Background="{StaticResource SurfaceBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
                 CornerRadius="16" Padding="40,20" Margin="0,0,0,20">
@@ -53,7 +63,7 @@
         </Border>
 
         <!-- Total Timer + Round Row -->
-        <Grid Grid.Row="3" Margin="0,0,0,20">
+        <Grid Grid.Row="4" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -91,11 +101,11 @@
         </Grid>
 
         <!-- Divider -->
-        <Border Grid.Row="4" Height="1"
+        <Border Grid.Row="5" Height="1"
                 Background="{StaticResource BorderBrush}" Margin="0,0,0,16"/>
 
         <!-- Volume + Warning Beep -->
-        <Grid Grid.Row="5" Margin="0,0,0,16">
+        <Grid Grid.Row="6" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="20"/>
@@ -127,14 +137,14 @@
         </Grid>
 
         <!-- Divider -->
-        <Border Grid.Row="6" Height="1"
+        <Border Grid.Row="7" Height="1"
                 Background="{StaticResource BorderBrush}"/>
 
         <!-- Spacer -->
-        <Grid Grid.Row="7"/>
+        <Grid Grid.Row="8"/>
 
         <!-- Control Buttons -->
-        <Grid Grid.Row="8">
+        <Grid Grid.Row="9">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="8"/>

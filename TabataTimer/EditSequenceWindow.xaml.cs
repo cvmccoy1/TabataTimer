@@ -15,6 +15,7 @@ namespace TabataTimer
         private readonly AppSettings _settings;
         private readonly List<TabataSequence> _allSequences;
         private bool _syncingSlider = false;
+        private bool _restoringList = false;
 
         public TabataSequence? ResultSequence { get; private set; }
 
@@ -50,14 +51,8 @@ namespace TabataTimer
                 SetSliderAndBox(WorkSlider,    WorkBox,    existing.WorkSeconds);
                 SetSliderAndBox(RestSlider,    RestBox,    existing.RestSeconds);
 
-                // Restore call-out mode
-                switch (existing.CallOutMode)
-                {
-                    case CallOutMode.Follow: ModeFollow.IsChecked = true; break;
-                    case CallOutMode.Repeat: ModeRepeat.IsChecked = true; break;
-                    case CallOutMode.Random: ModeRandom.IsChecked = true; break;
-                    default:                 ModeOff.IsChecked    = true; break;
-                }
+                // Restore call-out mode — start with Off to suppress premature list trimming
+                ModeOff.IsChecked = true;
 
                 // Restore voice
                 if (!string.IsNullOrEmpty(existing.VoiceName))
@@ -67,9 +62,21 @@ namespace TabataTimer
                 if (VoiceCombo.SelectedIndex < 0 && voices.Count > 0)
                     VoiceCombo.SelectedIndex = 0;
 
-                // Restore list items
+                // Restore list items BEFORE setting the actual mode
+                // so RefreshCallOutRowCount (triggered by mode change) sees the items already in place
+                _restoringList = true;
                 foreach (var item in existing.CallOutList)
                     AddCallOutRow(item);
+                _restoringList = false;
+
+                // Now set the actual mode — RefreshCallOutRowCount will run with items in place
+                switch (existing.CallOutMode)
+                {
+                    case CallOutMode.Follow: ModeFollow.IsChecked = true; break;
+                    case CallOutMode.Repeat: ModeRepeat.IsChecked = true; break;
+                    case CallOutMode.Random: ModeRandom.IsChecked = true; break;
+                    default:                 ModeOff.IsChecked    = true; break;
+                }
             }
             else
             {
@@ -82,8 +89,21 @@ namespace TabataTimer
                     VoiceCombo.SelectedIndex = 0;
             }
 
-            RefreshCallOutUI();
-            ValidateForm(null, null);
+            if (existing != null)
+            {
+                // Mode was set during list restore, items are in place — no RefreshCallOutUI needed
+                ValidateForm(null, null);
+                NameBox.Focus();
+            }
+            else
+            {
+                ModeOff.IsChecked = true;
+                if (voices.Count > 0)
+                    VoiceCombo.SelectedIndex = 0;
+                RefreshCallOutUI();
+                ValidateForm(null, null);
+                NameBox.Focus();
+            }
             NameBox.Focus();
 
             // Restore window layout
@@ -197,6 +217,7 @@ namespace TabataTimer
         private void CallOutMode_Changed(object sender, RoutedEventArgs e)
         {
             RefreshCallOutUI();
+            ValidateForm(sender, e);
         }
 
         private void RefreshCallOutUI()
@@ -220,7 +241,7 @@ namespace TabataTimer
         /// </summary>
         private void RefreshCallOutRowCount()
         {
-            if (CallOutPanel == null) return;
+            if (CallOutPanel == null || _restoringList) return;
             var mode = CurrentMode;
             if (mode == CallOutMode.Off) return;
 
