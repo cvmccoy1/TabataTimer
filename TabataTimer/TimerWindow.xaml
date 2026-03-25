@@ -40,15 +40,24 @@
                        HorizontalAlignment="Center"/>
         </Border>
 
-        <!-- Call Out Exercise Name — visible only during Work phase -->
-        <TextBlock x:Name="ExerciseLabel"
-                   Grid.Row="2"
-                   Text=""
-                   FontSize="14" FontWeight="SemiBold"
-                   Foreground="{StaticResource GreenBrush}"
-                   HorizontalAlignment="Center"
-                   Margin="0,0,0,8"
-                   Visibility="Collapsed"/>
+        <!-- Call Out Exercise Name — fixed height row reserves space regardless of visibility -->
+        <Grid Grid.Row="2" Height="70" Margin="0,0,0,12">
+            <Border x:Name="ExerciseBorder"
+                    Background="{StaticResource CardBrush}"
+                    BorderBrush="{StaticResource GreenBrush}" BorderThickness="2"
+                    CornerRadius="12" Padding="20,10"
+                    Visibility="Collapsed"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <TextBlock x:Name="ExerciseLabel"
+                           Text=""
+                           FontSize="28" FontWeight="Bold"
+                           FontFamily="Segoe UI Black"
+                           Foreground="{StaticResource GreenBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center"/>
+            </Border>
+        </Grid>
 
         <!-- Main Countdown Timer -->
         <Border Grid.Row="3" HorizontalAlignment="Center"
@@ -119,7 +128,6 @@
                 <Slider x:Name="VolumeSlider"
                         Style="{StaticResource ModernSlider}"
                         Minimum="0" Maximum="1" SmallChange="0.05"
-                        Value="0.8"
                         VerticalAlignment="Center"
                         ValueChanged="VolumeSlider_ValueChanged"/>
             </StackPanel>
@@ -130,7 +138,6 @@
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                 <CheckBox x:Name="WarningBeepCheck" Content="3-second countdown"
                           Style="{StaticResource ModernCheckBox}"
-                          IsChecked="True"
                           Checked="WarningBeep_Changed"
                           Unchecked="WarningBeep_Changed"/>
             </StackPanel>
