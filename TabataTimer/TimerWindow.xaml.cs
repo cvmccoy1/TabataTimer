@@ -44,16 +44,16 @@ namespace TabataTimer
         {
             _sequence = sequence;
             _settings = settings;
-            _callOut  = new CallOutEngine(sequence);
+            _callOut  = new CallOutEngine(_sequence);
 
             InitializeComponent();
 
-            SequenceNameText.Text      = sequence.Name.ToUpperInvariant();
-            VolumeSlider.Value         = settings.Volume;
-            WarningBeepCheck.IsChecked = settings.WarningBeepEnabled;
-            _audio.SetVolume(settings.Volume);
-            _tts.SetVolume(settings.Volume);
-            _tts.SetVoice(sequence.VoiceName);
+            SequenceNameText.Text      = _sequence.Name.ToUpperInvariant();
+            VolumeSlider.Value         = _settings.Volume;
+            WarningBeepCheck.IsChecked = _settings.WarningBeepEnabled;
+            _audio.SetVolume(_settings.Volume);
+            _tts.SetVolume(_settings.Volume);
+            _tts.SetVoice(_sequence.VoiceName);
 
             ResetDisplay();
 
@@ -65,19 +65,22 @@ namespace TabataTimer
                     Left = layout.Left;
                     Top = layout.Top;
                 }
-                if (!double.IsNaN(layout.Width) && layout.Width > 0)
-                    Width = Math.Max(layout.Width, MinWidth);
-                if (!double.IsNaN(layout.Height) && layout.Height > 0)
-                    Height = Math.Max(layout.Height, MinHeight);
+                //The width and height are currently fixed to avoid layout issues with the call-out text.
+                //if (!double.IsNaN(layout.Width) && layout.Width > 0)
+                //    Width = Math.Max(layout.Width, MinWidth);
+                //if (!double.IsNaN(layout.Height) && layout.Height > 0)
+                //    Height = Math.Max(layout.Height, MinHeight);
             };
             Closing += (s, e) =>
             {
+                _settings.Volume = VolumeSlider.Value;
+                _settings.WarningBeepEnabled = WarningBeepCheck.IsChecked == true;
                 _settings.TimerWindowLayout = new WindowLayout
                 {
                     Left = Left,
                     Top = Top,
-                    Width = Width,
-                    Height = Height
+                    Width = 0.0,
+                    Height = 0.0
                 };
             };
         }
@@ -290,7 +293,7 @@ namespace TabataTimer
             CountdownDisplay.Text       = "00:00";
             CountdownDisplay.Foreground = new SolidColorBrush(DoneColor);
             RoundDisplay.Text           = $"{_sequence.Repeats} of {_sequence.Repeats}";
-            ExerciseLabel.Visibility    = Visibility.Collapsed;
+            ExerciseBorder.Visibility    = Visibility.Collapsed;
 
             StartButton.IsEnabled = true;
             PauseButton.IsEnabled = false;
@@ -307,6 +310,7 @@ namespace TabataTimer
             if (!string.IsNullOrWhiteSpace(exercise))
             {
                 ExerciseLabel.Text = exercise.ToUpperInvariant();
+                ExerciseBorder.Visibility = Visibility.Visible;
                 _tts.Speak(exercise);
             }
         }
@@ -320,25 +324,25 @@ namespace TabataTimer
                     PhaseLabel.Text             = "READY";
                     PhaseLabel.Foreground       = new SolidColorBrush(WaitColor);
                     CountdownDisplay.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
-                    ExerciseLabel.Visibility    = Visibility.Collapsed;
+                    ExerciseBorder.Visibility   = Visibility.Collapsed;
                     break;
                 case TimerPhase.Wait:
                     PhaseLabel.Text             = "WAIT";
                     PhaseLabel.Foreground       = new SolidColorBrush(WaitColor);
                     CountdownDisplay.Foreground = new SolidColorBrush(WaitColor);
-                    ExerciseLabel.Visibility    = Visibility.Collapsed;
+                    ExerciseBorder.Visibility   = Visibility.Collapsed;
                     break;
                 case TimerPhase.Work:
                     PhaseLabel.Text             = "WORK";
                     PhaseLabel.Foreground       = new SolidColorBrush(WorkColor);
                     CountdownDisplay.Foreground = new SolidColorBrush(WorkColor);
-                    ExerciseLabel.Visibility    = Visibility.Visible;
+                    // Border is shown by SpeakExercise when TTS fires
                     break;
                 case TimerPhase.Rest:
                     PhaseLabel.Text             = "REST";
                     PhaseLabel.Foreground       = new SolidColorBrush(RestColor);
                     CountdownDisplay.Foreground = new SolidColorBrush(RestColor);
-                    ExerciseLabel.Visibility    = Visibility.Collapsed;
+                    ExerciseBorder.Visibility   = Visibility.Collapsed;
                     break;
             }
         }
