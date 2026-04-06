@@ -268,11 +268,11 @@ public partial class EditSequenceWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void TestVoice()
+    private async Task TestVoice()
     {
         var preview = new TtsService();
         if (SelectedVoice != null) preview.SetVoice(SelectedVoice.DisplayName);
-        preview.Speak("This is how this voice sounds.");
+        await preview.Speak("This is how this voice sounds.");
         preview.Dispose();
     }
 

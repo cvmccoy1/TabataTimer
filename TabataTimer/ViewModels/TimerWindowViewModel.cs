@@ -219,7 +219,7 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
     }
 
     // ── Timer tick ──────────────────────────────────────────────────────────
-    private void Timer_Tick(object? sender, EventArgs e)
+    private async void Timer_Tick(object? sender, EventArgs e)
     {
         TotalSecondsElapsed++;
         TotalDisplay = FormatTime(TotalSecondsElapsed);
@@ -230,7 +230,7 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
         else if (_callOutDelaySeconds == 0)
         {
             _callOutDelaySeconds = -1;
-            SpeakExercise();
+            await SpeakExercise();
         }
 
         // Phase countdown
@@ -360,7 +360,7 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
     }
 
     // ── TTS call-out ───────────────────────────────────────────────────────
-    private void SpeakExercise()
+    private async Task SpeakExercise()
     {
         if (_sequence.CallOutMode == CallOutMode.Off) return;
 
@@ -369,7 +369,7 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
         {
             ExerciseLabel = exercise.ToUpperInvariant();
             ExerciseVisible = true;
-            _tts.Speak(exercise);
+            await _tts.Speak(exercise);
         }
     }
 
@@ -411,5 +411,6 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
         StopTimer();
         _tts.Dispose();
         _audio.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

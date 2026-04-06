@@ -6,7 +6,8 @@ namespace TabataTimer.Services
 {
     /// <summary>
     /// Text-to-Speech service using Windows.Media.SpeechSynthesis (WinRT API).
-    /// Synthesizes speech to a stream and plays it via MediaPlayer on a background thread.
+    /// Audio playback runs on a dedicated background STA thread with a single message loop,
+    /// so only one playback runs at a time and the UI thread is never blocked.
     /// </summary>
     public class TtsService : ITtsService
     {
@@ -14,6 +15,9 @@ namespace TabataTimer.Services
         private double _volume = 0.8;
         private bool _disposed = false;
         private VoiceInformation? _voice;
+
+        // Playback thread's dispatcher (null until first Speak call)
+        private System.Windows.Threading.Dispatcher? _playerDispatcher;
 
         public TtsService()
         {
@@ -41,8 +45,11 @@ namespace TabataTimer.Services
         public static IReadOnlyList<VoiceInformation> GetAvailableVoices_Static()
             => SpeechSynthesizer.AllVoices.ToList();
 
-        /// <summary>Speak text asynchronously. Cancels any currently speaking utterance first.</summary>
-        public async void Speak(string text)
+        /// <summary>
+        /// Speak text asynchronously on a dedicated background thread.
+        /// Fire-and-forget: overlapping calls will naturally cut off the previous audio.
+        /// </summary>
+        public async Task Speak(string text)
         {
             if (_disposed || string.IsNullOrWhiteSpace(text) || _volume <= 0) return;
 
@@ -51,9 +58,6 @@ namespace TabataTimer.Services
                 _synth.Voice = _voice ?? SpeechSynthesizer.DefaultVoice;
                 var stream = await _synth.SynthesizeTextToStreamAsync(text);
 
-                // Read the WinRT stream into a byte array explicitly using a fixed-size buffer.
-                // Using a MemoryStream with a fixed buffer avoids issues with
-                // AsStreamForRead().CopyTo() not capturing the full WAV header.
                 using var memoryStream = new MemoryStream();
                 int streamSize = (int)stream.Size;
                 var buffer = new byte[streamSize];
@@ -66,63 +70,82 @@ namespace TabataTimer.Services
                 memoryStream.Write(buffer, 0, bytesRead);
                 memoryStream.Position = 0;
 
-                // Save to a temp wav file so MediaPlayer can play it on a background thread.
-                // MediaPlayer works best with files, not arbitrary streams.
                 var tempPath = Path.Combine(Path.GetTempPath(), $"TabataTts_{Guid.NewGuid()}.wav");
-                await File.WriteAllBytesAsync(tempPath, memoryStream.ToArray());
+                await File.WriteAllBytesAsync(tempPath, memoryStream.ToArray()).ConfigureAwait(false);
 
-                var thread = new Thread(() =>
-                {
-                    MediaPlayer? player = null;
-                    try
-                    {
-                        player = new MediaPlayer();
-                        player.Volume = _volume;
-
-                        player.MediaOpened += (s, e) =>
-                        {
-                            try { player.Play(); } catch { }
-                        };
-                        player.MediaEnded += (s, e) =>
-                        {
-                            try { player.Close(); } catch { }
-                            try { File.Delete(tempPath); } catch { }
-                            // stop the dispatcher so thread can exit
-                            System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvokeShutdown(
-                                System.Windows.Threading.DispatcherPriority.Background);
-                        };
-
-                        player.Open(new Uri(tempPath));
-                        System.Windows.Threading.Dispatcher.Run();
-                    }
-                    catch
-                    {
-                        try { player?.Close(); } catch { }
-                        try { File.Delete(tempPath); } catch { }
-                    }
-                });
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.IsBackground = true;
-                thread.Start();
+                EnsurePlaybackThread();
+                _playerDispatcher?.Invoke(() => PlayWav(tempPath));
             }
             catch { /* never crash the timer over TTS */ }
+        }
+
+        /// <summary>
+        /// Ensure the dedicated playback thread and dispatcher exist and are running.
+        /// Thread-safety: Interlocked handles the rare race where two calls racing
+        /// EnsurePlaybackThread might create two threads; the first one wins and the
+        /// second becomes eligible for GC.
+        /// </summary>
+        private void EnsurePlaybackThread()
+        {
+            if (_playerDispatcher != null)
+                return;
+
+            var t = new Thread(() =>
+            {
+                // CurrentDispatcher is thread-local — capture it so we can pass it back
+                _playerDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+                System.Windows.Threading.Dispatcher.Run();
+            })
+            {
+                IsBackground = true,
+                Name = "TtsService.Playback"
+            };
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+
+            // Block until the thread has stored the dispatcher reference.
+            // This is only called from Speak() which is already async, so blocking
+            // the call site (not the UI thread) is acceptable.
+            t.Join(500);
+        }
+
+        private void PlayWav(string tempPath)
+        {
+            MediaPlayer? player = null;
+            try
+            {
+                player = new MediaPlayer { Volume = _volume };
+                player.MediaEnded += (s, e) =>
+                {
+                    player?.Close();
+                    try { File.Delete(tempPath); } catch { }
+                };
+                player.Open(new Uri(tempPath));
+                player.Play();
+            }
+            catch
+            {
+                try { player?.Close(); } catch { }
+                try { File.Delete(tempPath); } catch { }
+            }
         }
 
         /// <summary>Cancel any in-progress speech.</summary>
         public void Stop()
         {
             if (_disposed) return;
-            // With WinRT TTS there's no mid-stream cancellation — playback is fire-and-forget.
-            // The next Speak call will simply overlap/cut off the previous audio naturally.
+            // With WinRT TTS there's no mid-stream cancellation.
+            // The next Speak call will naturally overlap/cut off the previous audio.
         }
 
         public void Dispose()
         {
-            if (!_disposed)
-            {
-                _disposed = true;
-                try { _synth.Dispose(); } catch { }
-            }
+            if (_disposed) return;
+            _disposed = true;
+            try { _synth.Dispose(); } catch { }
+
+            if (_playerDispatcher != null)
+                _playerDispatcher.InvokeShutdown();
         }
     }
 }

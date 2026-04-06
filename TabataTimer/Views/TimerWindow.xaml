@@ -1,4 +1,4 @@
-<Window x:Class="TabataTimer.TimerWindow"
+<Window x:Class="TabataTimer.Views.TimerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:TabataTimer.ViewModels"

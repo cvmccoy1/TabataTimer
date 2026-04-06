@@ -1,4 +1,4 @@
-<Window x:Class="TabataTimer.EditSequenceWindow"
+<Window x:Class="TabataTimer.Views.EditSequenceWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:TabataTimer.ViewModels"

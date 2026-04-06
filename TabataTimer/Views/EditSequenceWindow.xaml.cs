@@ -6,7 +6,7 @@ using TabataTimer.Models;
 using TabataTimer.Services;
 using TabataTimer.ViewModels;
 
-namespace TabataTimer;
+namespace TabataTimer.Views;
 
 public partial class EditSequenceWindow : Window
 {

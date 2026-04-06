@@ -1,12 +1,11 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using TabataTimer.Models;
 using TabataTimer.Services;
 using TabataTimer.ViewModels;
 
-namespace TabataTimer
+namespace TabataTimer.Views
 {
     public partial class MainWindow : Window
     {

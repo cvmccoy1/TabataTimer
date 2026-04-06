@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TabataTimer.Models;
 using TabataTimer.Services;
+using TabataTimer.Views;
 
 namespace TabataTimer.ViewModels;
 
