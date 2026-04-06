@@ -13,7 +13,12 @@ public partial class CallOutItemViewModel : ObservableObject
     [ObservableProperty]
     private string _text = "";
 
-    public int Index { get; }
+    private int _index;
+    public int Index
+    {
+        get => _index;
+        set { if (_index != value) { _index = value; OnPropertyChanged(nameof(Index)); } }
+    }
 
     public CallOutItemViewModel(int index, string text = "")
     {
@@ -74,9 +79,14 @@ public partial class EditSequenceWindowViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<CallOutItemViewModel> _callOutItems = new();
 
+    [ObservableProperty]
+    private CallOutItemViewModel? _selectedCallOutItem;
+
     // ── UI state ─────────────────────────────────────────────────────────────
     [ObservableProperty]
     private bool _isCallOutPanelVisible;
+
+    public bool CanRemoveCallOutItem => IsCallOutPanelVisible && SelectedCallOutItem != null;
 
     [ObservableProperty]
     private string _validationMessage = "";
@@ -163,6 +173,17 @@ public partial class EditSequenceWindowViewModel : ObservableObject
 
     partial void OnSelectedVoiceChanged(VoiceInformation? value) { /* nothing to validate */ }
 
+    partial void OnSelectedCallOutItemChanged(CallOutItemViewModel? value)
+    {
+        OnPropertyChanged(nameof(CanRemoveCallOutItem));
+    }
+
+    partial void OnIsCallOutPanelVisibleChanged(bool value)
+    {
+        if (!value) SelectedCallOutItem = null;
+        OnPropertyChanged(nameof(CanRemoveCallOutItem));
+    }
+
     // ── Call-out list management ────────────────────────────────────────────
     private void SyncCallOutItemsForCurrentMode()
     {
@@ -183,24 +204,47 @@ public partial class EditSequenceWindowViewModel : ObservableObject
         // Random mode: no auto-sync, user adds as needed.
     }
 
+    private void ReindexCallOutItems()
+    {
+        for (int i = 0; i < CallOutItems.Count; i++)
+            CallOutItems[i].Index = i + 1;
+    }
+
     [RelayCommand]
     private void AddCallOutItem()
     {
         if (CallOutMode == CallOutMode.Off) return;
-        if (CallOutMode == CallOutMode.Repeat && CallOutItems.Count >= Repeats)
+
+        int insertIndex = CallOutItems.Count;
+
+        if (CallOutMode == CallOutMode.Repeat)
         {
-            MessageBox.Show(
-                $"Repeat mode allows at most {Repeats} items (matching the Repeats setting).",
-                "List Full", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
+            if (CallOutItems.Count >= Repeats)
+            {
+                MessageBox.Show(
+                    $"Repeat mode allows at most {Repeats} items (matching the Repeats setting).",
+                    "List Full", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            if (SelectedCallOutItem != null)
+                insertIndex = CallOutItems.IndexOf(SelectedCallOutItem) + 1;
         }
-        CallOutItems.Add(new CallOutItemViewModel(CallOutItems.Count + 1));
+        else if (SelectedCallOutItem != null)
+        {
+            insertIndex = CallOutItems.IndexOf(SelectedCallOutItem) + 1;
+        }
+
+        CallOutItems.Insert(insertIndex, new CallOutItemViewModel(insertIndex + 1));
+        ReindexCallOutItems();
+        SelectedCallOutItem = CallOutItems[insertIndex];
     }
 
     [RelayCommand]
     private void RemoveCallOutItem()
     {
         if (CallOutMode == CallOutMode.Off) return;
+        if (SelectedCallOutItem == null) return;
+
         if (CallOutMode == CallOutMode.Follow && CallOutItems.Count <= Repeats)
         {
             MessageBox.Show(
@@ -208,8 +252,11 @@ public partial class EditSequenceWindowViewModel : ObservableObject
                 "Cannot Remove", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
-        if (CallOutItems.Count > 0)
-            CallOutItems.RemoveAt(CallOutItems.Count - 1);
+
+        var toRemove = SelectedCallOutItem;
+        SelectedCallOutItem = null;
+        CallOutItems.Remove(toRemove);
+        ReindexCallOutItems();
     }
 
     [RelayCommand]

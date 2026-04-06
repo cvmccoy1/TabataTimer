@@ -198,8 +198,12 @@
                     CornerRadius="6" Margin="0,0,0,8">
                 <Grid>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
-                        <ItemsControl ItemsSource="{Binding CallOutItems}">
-                            <ItemsControl.ItemTemplate>
+                        <ListBox ItemsSource="{Binding CallOutItems}"
+                                 SelectedItem="{Binding SelectedCallOutItem, Mode=TwoWay}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,0,0,4">
                                         <Grid.ColumnDefinitions>
@@ -215,11 +219,30 @@
                                                  Style="{StaticResource ModernTextBox}"
                                                  FontSize="12" Padding="8,5,8,5"
                                                  Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 ToolTip="Enter an exercise, or multiple exercises separated by commas"/>
+                                                 ToolTip="Enter an exercise, or multiple exercises separated by commas"
+                                                 PreviewMouseLeftButtonDown="CallOutTextBox_PreviewMouseLeftButtonDown"/>
                                     </Grid>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Bd" Background="Transparent" Padding="0">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#3A3A3A"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
                     </ScrollViewer>
 
                     <!-- Off-mode overlay -->
@@ -242,7 +265,8 @@
                         Command="{Binding AddCallOutItemCommand}"/>
                 <Button Content="− Remove" Style="{StaticResource GhostButton}"
                         Padding="10,4" FontSize="11"
-                        Command="{Binding RemoveCallOutItemCommand}"/>
+                        Command="{Binding RemoveCallOutItemCommand}"
+                        IsEnabled="{Binding CanRemoveCallOutItem}"/>
             </StackPanel>
         </Grid>
 
