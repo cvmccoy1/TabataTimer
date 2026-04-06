@@ -9,7 +9,7 @@ namespace TabataTimer.Services
     /// to the Windows default audio device (including HDMI/Bluetooth outputs).
     /// Tones are written as temporary WAV files and played through MediaPlayer.
     /// </summary>
-    public class AudioService
+    public class AudioService : IAudioService
     {
         private double _volume = 0.8;
         private readonly string _tempDir;

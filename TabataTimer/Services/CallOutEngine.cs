@@ -6,7 +6,7 @@ namespace TabataTimer.Services
     /// Manages call-out exercise selection for Follow, Repeat, and Random modes.
     /// Call Reset() when a workout starts. Call Next() at the start of each Work phase.
     /// </summary>
-    public class CallOutEngine
+    public class CallOutEngine : ICallOutEngine
     {
         private readonly TabataSequence _sequence;
         private readonly Random _rng = new();

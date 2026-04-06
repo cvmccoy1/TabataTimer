@@ -1,12 +1,17 @@
 <Window x:Class="TabataTimer.TimerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:TabataTimer.ViewModels"
+        xmlns:conv="clr-namespace:TabataTimer.Converters"
         Title="Tabata Timer — Running" Height="660" Width="520"
         ResizeMode="CanMinimize"
         Background="{StaticResource BackgroundBrush}"
         WindowStartupLocation="Manual"
-        FontFamily="Segoe UI"
-        Closing="Window_Closing">
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+    </Window.Resources>
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -23,7 +28,7 @@
 
         <!-- Sequence Name -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20" HorizontalAlignment="Center">
-            <TextBlock x:Name="SequenceNameText" Text="SEQUENCE NAME"
+            <TextBlock Text="{Binding SequenceName}"
                        FontSize="13" FontWeight="SemiBold"
                        Foreground="{StaticResource TextSecondaryBrush}"
                        HorizontalAlignment="Center"/>
@@ -33,23 +38,21 @@
         <Border Grid.Row="1" HorizontalAlignment="Center"
                 Background="{StaticResource CardBrush}"
                 CornerRadius="20" Padding="24,8" Margin="0,0,0,12">
-            <TextBlock x:Name="PhaseLabel" Text="REST"
+            <TextBlock Text="{Binding PhaseLabel}"
                        FontSize="22" FontWeight="Bold"
                        FontFamily="Segoe UI Black"
-                       Foreground="{StaticResource AccentBrush}"
+                       Foreground="{Binding PhaseLabelForeground}"
                        HorizontalAlignment="Center"/>
         </Border>
 
-        <!-- Call Out Exercise Name — fixed height row reserves space regardless of visibility -->
+        <!-- Call Out Exercise Name -->
         <Grid Grid.Row="2" Height="70" Margin="0,0,0,12">
-            <Border x:Name="ExerciseBorder"
-                    Background="{StaticResource CardBrush}"
+            <Border Background="{StaticResource CardBrush}"
                     BorderBrush="{StaticResource GreenBrush}" BorderThickness="2"
                     CornerRadius="12" Padding="20,10"
-                    Visibility="Collapsed"
+                    Visibility="{Binding ExerciseVisible, Converter={StaticResource BoolToVisibility}}"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <TextBlock x:Name="ExerciseLabel"
-                           Text=""
+                <TextBlock Text="{Binding ExerciseLabel}"
                            FontSize="28" FontWeight="Bold"
                            FontFamily="Segoe UI Black"
                            Foreground="{StaticResource GreenBrush}"
@@ -64,10 +67,10 @@
                 Background="{StaticResource SurfaceBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
                 CornerRadius="16" Padding="40,20" Margin="0,0,0,20">
-            <TextBlock x:Name="CountdownDisplay" Text="00:00"
+            <TextBlock Text="{Binding CountdownDisplay}"
                        FontSize="96" FontWeight="Bold"
                        FontFamily="Consolas"
-                       Foreground="{StaticResource TextPrimaryBrush}"
+                       Foreground="{Binding CountdownForeground}"
                        HorizontalAlignment="Center"/>
         </Border>
 
@@ -86,7 +89,7 @@
                     <TextBlock Text="TOTAL TIME" FontSize="10" FontWeight="SemiBold"
                                Foreground="{StaticResource TextSecondaryBrush}"
                                HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                    <TextBlock x:Name="TotalDisplay" Text="00:00"
+                    <TextBlock Text="{Binding TotalDisplay}"
                                FontSize="32" FontWeight="Bold" FontFamily="Consolas"
                                Foreground="{StaticResource BlueBrush}"
                                HorizontalAlignment="Center"/>
@@ -101,7 +104,7 @@
                     <TextBlock Text="ROUND" FontSize="10" FontWeight="SemiBold"
                                Foreground="{StaticResource TextSecondaryBrush}"
                                HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                    <TextBlock x:Name="RoundDisplay" Text="0 of 0"
+                    <TextBlock Text="{Binding RoundDisplay}"
                                FontSize="32" FontWeight="Bold" FontFamily="Consolas"
                                Foreground="{StaticResource GreenBrush}"
                                HorizontalAlignment="Center"/>
@@ -125,21 +128,19 @@
             <StackPanel Grid.Column="0">
                 <TextBlock Text="🔊  VOLUME" FontSize="10" FontWeight="SemiBold"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                <Slider x:Name="VolumeSlider"
-                        Style="{StaticResource ModernSlider}"
+                <Slider Style="{StaticResource ModernSlider}"
                         Minimum="0" Maximum="1" SmallChange="0.05"
                         VerticalAlignment="Center"
-                        ValueChanged="VolumeSlider_ValueChanged"/>
+                        Value="{Binding Volume, Mode=TwoWay}"/>
             </StackPanel>
 
             <!-- Warning Beep -->
             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                 <TextBlock Text="⚠  WARNING BEEP" FontSize="10" FontWeight="SemiBold"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                <CheckBox x:Name="WarningBeepCheck" Content="3-second countdown"
+                <CheckBox Content="3-second countdown"
                           Style="{StaticResource ModernCheckBox}"
-                          Checked="WarningBeep_Changed"
-                          Unchecked="WarningBeep_Changed"/>
+                          IsChecked="{Binding WarningBeepEnabled, Mode=TwoWay}"/>
             </StackPanel>
         </Grid>
 
@@ -162,27 +163,28 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" x:Name="StartButton" Content="▶  START"
+            <Button Grid.Column="0" Content="▶  START"
                     Style="{StaticResource GreenButton}"
                     Padding="0,14" FontSize="14"
-                    Click="Start_Click"/>
+                    Command="{Binding StartCommand}"
+                    IsEnabled="{Binding StartEnabled}"/>
 
-            <Button Grid.Column="2" x:Name="PauseButton" Content="⏸  PAUSE"
+            <Button Grid.Column="2" Content="{Binding PauseButtonContent}"
                     Style="{StaticResource YellowButton}"
                     Padding="0,14" FontSize="14"
-                    IsEnabled="False"
-                    Click="Pause_Click"/>
+                    Command="{Binding PauseCommand}"
+                    IsEnabled="{Binding PauseEnabled}"/>
 
-            <Button Grid.Column="4" x:Name="StopButton" Content="⏹  STOP"
+            <Button Grid.Column="4" Content="⏹  STOP"
                     Style="{StaticResource RedButton}"
                     Padding="0,14" FontSize="14"
-                    IsEnabled="False"
-                    Click="Stop_Click"/>
+                    Command="{Binding StopCommand}"
+                    IsEnabled="{Binding StopEnabled}"/>
 
             <Button Grid.Column="6" Content="✕  EXIT"
                     Style="{StaticResource GhostButton}"
                     Padding="0,14" FontSize="14"
-                    Click="Exit_Click"/>
+                    Command="{Binding ExitCommand}"/>
         </Grid>
     </Grid>
 </Window>

@@ -8,7 +8,7 @@ namespace TabataTimer.Services
     /// Text-to-Speech service using Windows.Media.SpeechSynthesis (WinRT API).
     /// Synthesizes speech to a stream and plays it via MediaPlayer on a background thread.
     /// </summary>
-    public class TtsService : IDisposable
+    public class TtsService : ITtsService
     {
         private readonly SpeechSynthesizer _synth;
         private double _volume = 0.8;
@@ -34,7 +34,11 @@ namespace TabataTimer.Services
         }
 
         /// <summary>Returns all installed TTS voices.</summary>
-        public static IReadOnlyList<VoiceInformation> GetAvailableVoices()
+        public IReadOnlyList<VoiceInformation> GetAvailableVoices()
+            => SpeechSynthesizer.AllVoices.ToList();
+
+        /// <summary>Static convenience wrapper for GetAvailableVoices().</summary>
+        public static IReadOnlyList<VoiceInformation> GetAvailableVoices_Static()
             => SpeechSynthesizer.AllVoices.ToList();
 
         /// <summary>Speak text asynchronously. Cancels any currently speaking utterance first.</summary>

@@ -2,49 +2,53 @@ using System.IO;
 using Newtonsoft.Json;
 using TabataTimer.Models;
 
-namespace TabataTimer.Services
+namespace TabataTimer.Services;
+
+public class SettingsManager : ISettingsManager
 {
-    public static class SettingsManager
+    private readonly string _settingsPath;
+
+    public static SettingsManager Instance { get; private set; } = null!;
+
+    public SettingsManager(string settingsPath)
     {
-        private static readonly string AppDataPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "TabataTimer");
+        _settingsPath = settingsPath;
+        Instance = this;
+    }
 
-        private static readonly string SettingsFile = Path.Combine(AppDataPath, "settings.json");
-
-        public static AppSettings Load()
+    public AppSettings Load()
+    {
+        try
         {
-            try
-            {
-                if (!Directory.Exists(AppDataPath))
-                    Directory.CreateDirectory(AppDataPath);
+            var dir = Path.GetDirectoryName(_settingsPath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
 
-                if (!File.Exists(SettingsFile))
-                    return new AppSettings();
-
-                var json = File.ReadAllText(SettingsFile);
-                return JsonConvert.DeserializeObject<AppSettings>(json) ?? new AppSettings();
-            }
-            catch
-            {
+            if (!File.Exists(_settingsPath))
                 return new AppSettings();
-            }
+
+            var json = File.ReadAllText(_settingsPath);
+            return JsonConvert.DeserializeObject<AppSettings>(json) ?? new AppSettings();
         }
-
-        public static void Save(AppSettings settings)
+        catch
         {
-            try
-            {
-                if (!Directory.Exists(AppDataPath))
-                    Directory.CreateDirectory(AppDataPath);
+            return new AppSettings();
+        }
+    }
 
-                var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-                File.WriteAllText(SettingsFile, json);
-            }
-            catch
-            {
-                // Silently fail — don't crash the app on save error
-            }
+    public void Save(AppSettings settings)
+    {
+        try
+        {
+            var dir = Path.GetDirectoryName(_settingsPath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+            File.WriteAllText(_settingsPath, json);
+        }
+        catch
+        {
         }
     }
 }
