@@ -128,8 +128,8 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
         _tts = tts;
         _callOut = callOut;
 
-        Volume = settings.Volume;
-        WarningBeepEnabled = settings.WarningBeepEnabled;
+        Volume = double.IsNaN(_sequence.Volume) ? settings.Volume : _sequence.Volume;
+        WarningBeepEnabled = _sequence.WarningBeepEnabled;
 
         _audio.SetVolume(Volume);
         _tts.SetVolume(Volume);
@@ -143,13 +143,13 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
     {
         _audio.SetVolume(value);
         _tts.SetVolume(value);
-        _settings.Volume = value;
+        _sequence.Volume = value;
         SettingsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     partial void OnWarningBeepEnabledChanged(bool value)
     {
-        _settings.WarningBeepEnabled = value;
+        _sequence.WarningBeepEnabled = value;
         SettingsChanged?.Invoke(this, EventArgs.Empty);
     }
 

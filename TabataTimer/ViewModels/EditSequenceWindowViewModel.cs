@@ -77,6 +77,12 @@ public partial class EditSequenceWindowViewModel : ObservableObject
     private VoiceInformation? _selectedVoice;
 
     [ObservableProperty]
+    private double _volume = 0.8;
+
+    [ObservableProperty]
+    private bool _warningBeepEnabled = true;
+
+    [ObservableProperty]
     private ObservableCollection<CallOutItemViewModel> _callOutItems = new();
 
     [ObservableProperty]
@@ -125,6 +131,8 @@ public partial class EditSequenceWindowViewModel : ObservableObject
             WorkSeconds = existing.WorkSeconds;
             RestSeconds = existing.RestSeconds;
             CallOutMode = existing.CallOutMode;
+            Volume = double.IsNaN(existing.Volume) ? 0.8 : existing.Volume;
+            WarningBeepEnabled = existing.WarningBeepEnabled;
 
             if (!string.IsNullOrEmpty(existing.VoiceName))
                 SelectedVoice = AvailableVoices.FirstOrDefault(v => v.DisplayName == existing.VoiceName);
@@ -311,7 +319,9 @@ public partial class EditSequenceWindowViewModel : ObservableObject
             RestSeconds = RestSeconds,
             CallOutMode = CallOutMode,
             CallOutList = CallOutItems.Select(i => i.Text.Trim()).ToList(),
-            VoiceName = SelectedVoice?.DisplayName
+            VoiceName = SelectedVoice?.DisplayName,
+            Volume = Volume,
+            WarningBeepEnabled = WarningBeepEnabled
         };
         OkRequested?.Invoke(this, EventArgs.Empty);
     }

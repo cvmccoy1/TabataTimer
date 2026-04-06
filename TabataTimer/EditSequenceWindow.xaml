@@ -148,6 +148,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Section header -->
@@ -268,6 +269,32 @@
                         Command="{Binding RemoveCallOutItemCommand}"
                         IsEnabled="{Binding CanRemoveCallOutItem}"/>
             </StackPanel>
+
+            <!-- Volume + Warning Beep -->
+            <Grid Grid.Row="5" Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="🔊  VOLUME" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <Slider Style="{StaticResource ModernSlider}"
+                            Minimum="0" Maximum="1" SmallChange="0.05"
+                            VerticalAlignment="Center"
+                            Value="{Binding Volume, Mode=TwoWay}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="⚠  WARNING BEEP" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <CheckBox Content="3-second countdown"
+                              Style="{StaticResource ModernCheckBox}"
+                              IsChecked="{Binding WarningBeepEnabled, Mode=TwoWay}"/>
+                </StackPanel>
+            </Grid>
         </Grid>
 
         <!-- BUTTONS -->

@@ -27,6 +27,16 @@ namespace TabataTimer.Models
         /// </summary>
         public string? VoiceName { get; set; }
 
+        /// <summary>
+        /// Volume for this sequence (0.0 – 1.0). NaN means use the app default.
+        /// </summary>
+        public double Volume { get; set; } = double.NaN;
+
+        /// <summary>
+        /// Whether the 3-second warning beep is enabled for this sequence.
+        /// </summary>
+        public bool WarningBeepEnabled { get; set; } = true;
+
         public string WaitDisplay => FormatTime(WaitSeconds);
         public string WorkDisplay => FormatTime(WorkSeconds);
         public string RestDisplay => FormatTime(RestSeconds);
