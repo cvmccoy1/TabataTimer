@@ -8,28 +8,36 @@ namespace TabataTimer.Services
     /// </summary>
     public class CallOutEngine : ICallOutEngine
     {
-        private readonly TabataSequence _sequence;
         private readonly Random _rng = new();
 
         // Follow / Repeat tracking
         private int _followIndex = 0;
 
+        // Per-slot exercise tracking (for cycling through comma-separated exercises)
+        private readonly Dictionary<int, int> _slotExerciseIndices = [];
+
         // Random tracking — exercises already used this cycle
-        private readonly List<string> _randomPool = new();
-        private readonly List<string> _randomUsed = new();
+        private readonly List<string> _randomPool = [];
+        private readonly List<string> _randomUsed = [];
 
         /// <summary>The exercise text for the current (most recently selected) Work phase.</summary>
         public string? CurrentExercise { get; private set; }
+
+        /// <summary>True if the current exercise should trigger a mid-Work beep.</summary>
+        public bool CurrentExerciseNeedsMidWorkBeep { get; private set; }
 
         public CallOutEngine(TabataSequence sequence)
         {
             _sequence = sequence;
         }
 
+        private readonly TabataSequence _sequence;
+
         /// <summary>Reset state at workout start.</summary>
         public void Reset()
         {
             _followIndex = 0;
+            _slotExerciseIndices.Clear();
             _randomPool.Clear();
             _randomUsed.Clear();
 
@@ -54,6 +62,7 @@ namespace TabataTimer.Services
                 _                   => null
             };
             CurrentExercise = result;
+            CurrentExerciseNeedsMidWorkBeep = result?.StartsWith('*') ?? false;
             return result;
         }
 
@@ -65,8 +74,9 @@ namespace TabataTimer.Services
                 return null;
 
             var slot = _sequence.CallOutList[_followIndex];
+            int slotIndex = _followIndex;
             _followIndex++;
-            return PickFromSlot(slot);
+            return PickFromSlot(slotIndex, slot);
         }
 
         // ── Repeat ────────────────────────────────────────────────────────────
@@ -75,9 +85,10 @@ namespace TabataTimer.Services
         {
             if (_sequence.CallOutList.Count == 0) return null;
 
-            var slot = _sequence.CallOutList[_followIndex % _sequence.CallOutList.Count];
+            int slotIndex = _followIndex % _sequence.CallOutList.Count;
+            var slot = _sequence.CallOutList[slotIndex];
             _followIndex++;
-            return PickFromSlot(slot);
+            return PickFromSlot(slotIndex, slot);
         }
 
         // ── Random ────────────────────────────────────────────────────────────
@@ -106,9 +117,9 @@ namespace TabataTimer.Services
 
         /// <summary>
         /// A slot may be blank, a single exercise, or comma-separated exercises.
-        /// If multiple, pick one at random — preferring one not recently used.
+        /// If multiple, cycles through them sequentially, wrapping around when exhausted.
         /// </summary>
-        private string? PickFromSlot(string? slot)
+        private string? PickFromSlot(int slotIndex, string? slot)
         {
             if (string.IsNullOrWhiteSpace(slot)) return null;
 
@@ -120,16 +131,15 @@ namespace TabataTimer.Services
             if (parts.Count == 0) return null;
             if (parts.Count == 1) return parts[0];
 
-            // Try to pick one not in the used set
-            var unused = parts.Except(_randomUsed, StringComparer.OrdinalIgnoreCase).ToList();
-            var candidates = unused.Count > 0 ? unused : parts;
-            var chosen = candidates[_rng.Next(candidates.Count)];
+            // Get current index for this slot, default to 0
+            if (!_slotExerciseIndices.TryGetValue(slotIndex, out int currentIndex))
+                currentIndex = 0;
 
-            // Track it so we avoid repeating it next call for this slot type
-            if (!_randomUsed.Contains(chosen, StringComparer.OrdinalIgnoreCase))
-                _randomUsed.Add(chosen);
+            // Cycle through exercises sequentially
+            string exercise = parts[currentIndex];
+            _slotExerciseIndices[slotIndex] = (currentIndex + 1) % parts.Count;
 
-            return chosen;
+            return exercise;
         }
 
         private void BuildRandomPool()

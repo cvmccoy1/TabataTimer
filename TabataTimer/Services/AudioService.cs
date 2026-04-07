@@ -14,10 +14,11 @@ namespace TabataTimer.Services
         private double _volume = 0.8;
         private readonly string _tempDir;
 
-        // Pre-generate the three sound files once at startup
+        // Pre-generate the sound files once at startup
         private readonly string _warningFile;
         private readonly string _phaseEndFile;
         private readonly string _finalFile;
+        private readonly string _midWorkFile;
 
         public AudioService()
         {
@@ -40,6 +41,7 @@ namespace TabataTimer.Services
             _warningFile  = Path.Combine(_tempDir, $"warning_{id}.wav");
             _phaseEndFile = Path.Combine(_tempDir, $"phaseend_{id}.wav");
             _finalFile    = Path.Combine(_tempDir, $"final_{id}.wav");
+            _midWorkFile  = Path.Combine(_tempDir, $"midwork_{id}.wav");
 
             // Warning: short high tick
             WriteWav(_warningFile, new[] { (880.0, 90) });
@@ -49,6 +51,9 @@ namespace TabataTimer.Services
 
             // Final: ascending C5-E5-G5 fanfare
             WriteWav(_finalFile, new[] { (523.0, 210), (0.0, 60), (659.0, 210), (0.0, 60), (784.0, 480) });
+
+            // Mid-work: ascending two-note signal for * exercises
+            WriteWav(_midWorkFile, new[] { (523.0, 120), (0.0, 40), (660.0, 160) });
         }
 
         public void SetVolume(double volume) => _volume = Math.Clamp(volume, 0.0, 1.0);
@@ -56,12 +61,14 @@ namespace TabataTimer.Services
         public void PlayWarningBeep()  => PlayFile(_warningFile);
         public void PlayPhaseEndBeep() => PlayFile(_phaseEndFile);
         public void PlayFinalBeep()    => PlayFile(_finalFile);
+        public void PlayMidWorkBeep()  => PlayFile(_midWorkFile);
 
         public void Dispose()
         {
             TryDelete(_warningFile);
             TryDelete(_phaseEndFile);
             TryDelete(_finalFile);
+            TryDelete(_midWorkFile);
         }
 
         private static void TryDelete(string path)

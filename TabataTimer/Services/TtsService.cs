@@ -19,10 +19,7 @@ namespace TabataTimer.Services
         // Playback thread's dispatcher (null until first Speak call)
         private System.Windows.Threading.Dispatcher? _playerDispatcher;
 
-        public TtsService()
-        {
-            _synth = new SpeechSynthesizer();
-        }
+        public TtsService() => _synth = new SpeechSynthesizer();
 
         public void SetVolume(double volume)
         {

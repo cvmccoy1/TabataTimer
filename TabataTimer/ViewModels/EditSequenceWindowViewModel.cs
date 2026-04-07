@@ -83,7 +83,7 @@ public partial class EditSequenceWindowViewModel : ObservableObject
     private bool _warningBeepEnabled = true;
 
     [ObservableProperty]
-    private ObservableCollection<CallOutItemViewModel> _callOutItems = new();
+    private ObservableCollection<CallOutItemViewModel> _callOutItems = [];
 
     [ObservableProperty]
     private CallOutItemViewModel? _selectedCallOutItem;

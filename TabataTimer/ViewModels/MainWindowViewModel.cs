@@ -14,7 +14,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly Func<TabataSequence?, AppSettings, List<TabataSequence>, TabataSequence?> _openEditDialog;
 
     [ObservableProperty]
-    private ObservableCollection<TabataSequenceViewModel> _sequences = new();
+    private ObservableCollection<TabataSequenceViewModel> _sequences = [];
 
     [ObservableProperty]
     private string _statusText = "Ready";

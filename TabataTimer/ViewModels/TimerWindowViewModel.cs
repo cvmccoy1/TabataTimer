@@ -236,6 +236,17 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
         // Phase countdown
         PhaseSecondsLeft--;
 
+        // Mid-phase beep at Work midpoint
+        if (Phase == TimerPhase.Work
+            && PhaseSecondsLeft == _sequence.WorkSeconds / 2)
+        {
+            // Unique ascending beep for exercises marked with *, regular beep otherwise
+            if (_callOut.CurrentExerciseNeedsMidWorkBeep)
+                _audio.PlayMidWorkBeep();
+            //else
+            //    _audio.PlayWarningBeep();
+        }
+
         // Warning beeps at 3, 2, 1 seconds remaining
         if (WarningBeepEnabled
             && PhaseSecondsLeft >= 1
@@ -367,9 +378,11 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
         var exercise = _callOut.Next();
         if (!string.IsNullOrWhiteSpace(exercise))
         {
-            ExerciseLabel = exercise.ToUpperInvariant();
+            // Strip leading asterisk for display and TTS
+            string displayExercise = exercise.TrimStart('*');
+            ExerciseLabel = displayExercise.ToUpperInvariant();
             ExerciseVisible = true;
-            await _tts.Speak(exercise);
+            await _tts.Speak(displayExercise);
         }
     }
 

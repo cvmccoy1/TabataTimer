@@ -19,7 +19,7 @@ namespace TabataTimer.Models
         /// Each entry corresponds to one slot in the call-out list.
         /// A slot may be empty, a single exercise, or comma-separated exercises.
         /// </summary>
-        public List<string> CallOutList { get; set; } = new();
+        public List<string> CallOutList { get; set; } = [];
 
         /// <summary>
         /// The display name of the TTS voice to use for this sequence.
@@ -59,11 +59,11 @@ namespace TabataTimer.Models
 
     public class AppSettings
     {
-        public List<TabataSequence> Sequences { get; set; } = new();
+        public List<TabataSequence> Sequences { get; set; } = [];
         public double Volume { get; set; } = 0.8;
         public bool WarningBeepEnabled { get; set; } = true;
         public WindowLayout MainWindowLayout { get; set; } = new();
-        public Dictionary<Guid, WindowLayout> EditDialogLayouts { get; set; } = new();
+        public Dictionary<Guid, WindowLayout> EditDialogLayouts { get; set; } = [];
         public WindowLayout TimerWindowLayout { get; set; } = new();
     }
 }

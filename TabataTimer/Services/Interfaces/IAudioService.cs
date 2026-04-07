@@ -6,4 +6,5 @@ public interface IAudioService : IDisposable
     void PlayWarningBeep();
     void PlayPhaseEndBeep();
     void PlayFinalBeep();
+    void PlayMidWorkBeep();
 }
