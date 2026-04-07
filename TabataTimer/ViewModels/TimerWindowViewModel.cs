@@ -242,9 +242,8 @@ public partial class TimerWindowViewModel : ViewModelBase, IDisposable
         {
             // Unique ascending beep for exercises marked with *, regular beep otherwise
             if (_callOut.CurrentExerciseNeedsMidWorkBeep)
-                _audio.PlayMidWorkBeep();
-            //else
-            //    _audio.PlayWarningBeep();
+                await _tts.Speak("Switch");
+               //_audio.PlayMidWorkBeep();
         }
 
         // Warning beeps at 3, 2, 1 seconds remaining
