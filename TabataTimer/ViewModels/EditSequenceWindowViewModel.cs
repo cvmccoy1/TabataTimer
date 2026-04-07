@@ -150,7 +150,6 @@ public partial class EditSequenceWindowViewModel : ObservableObject
             RestSeconds = 10;
             if (AvailableVoices.Count > 0)
                 SelectedVoice = AvailableVoices[0];
-            SyncCallOutItemsForCurrentMode();
         }
 
         IsCallOutPanelVisible = CallOutMode != CallOutMode.Off;
@@ -164,11 +163,7 @@ public partial class EditSequenceWindowViewModel : ObservableObject
 
     partial void OnRestSecondsChanged(int value) => RefreshValidation();
 
-    partial void OnRepeatsChanged(int value)
-    {
-        RefreshValidation();
-        SyncCallOutItemsForCurrentMode();
-    }
+    partial void OnRepeatsChanged(int value) => RefreshValidation();
 
     partial void OnCallOutModeChanged(CallOutMode value)
     {
@@ -197,19 +192,13 @@ public partial class EditSequenceWindowViewModel : ObservableObject
     {
         if (CallOutMode == CallOutMode.Off) return;
 
-        if (CallOutMode == CallOutMode.Follow)
-        {
-            while (CallOutItems.Count < Repeats)
-                CallOutItems.Add(new CallOutItemViewModel(CallOutItems.Count + 1));
-            while (CallOutItems.Count > Repeats)
-                CallOutItems.RemoveAt(CallOutItems.Count - 1);
-        }
-        else if (CallOutMode == CallOutMode.Repeat)
+        // Repeat mode: enforce max of Repeats items
+        if (CallOutMode == CallOutMode.Repeat)
         {
             while (CallOutItems.Count > Repeats)
                 CallOutItems.RemoveAt(CallOutItems.Count - 1);
         }
-        // Random mode: no auto-sync, user adds as needed.
+        // Follow and Random modes: no auto-sync, user adds/removes as needed.
     }
 
     private void ReindexCallOutItems()
@@ -253,10 +242,10 @@ public partial class EditSequenceWindowViewModel : ObservableObject
         if (CallOutMode == CallOutMode.Off) return;
         if (SelectedCallOutItem == null) return;
 
-        if (CallOutMode == CallOutMode.Follow && CallOutItems.Count <= Repeats)
+        if (CallOutMode == CallOutMode.Repeat && CallOutItems.Count <= 1)
         {
             MessageBox.Show(
-                "Follow mode requires exactly one entry per repeat. Reduce the Repeats setting first.",
+                "Repeat mode requires at least one entry.",
                 "Cannot Remove", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
