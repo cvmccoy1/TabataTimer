@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace TabataTimer.Models
 {
     public enum CallOutMode { Follow, Repeat, Random, Off }

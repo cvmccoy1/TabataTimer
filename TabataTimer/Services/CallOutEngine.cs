@@ -1,4 +1,5 @@
 using TabataTimer.Models;
+using TabataTimer.Services.Interfaces;
 
 namespace TabataTimer.Services
 {

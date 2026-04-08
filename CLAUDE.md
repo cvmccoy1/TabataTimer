@@ -39,3 +39,4 @@
 - CallOut exercises support comma-separated multiple exercises
 - TTS service uses Windows Speech API for exercise name announcement
 - Timer runs on background thread, UI updates via `Dispatcher`
+- `Repeats` and `CallOutItems` are independent in Follow and Random modes (only Repeat mode constrains minimum entries)

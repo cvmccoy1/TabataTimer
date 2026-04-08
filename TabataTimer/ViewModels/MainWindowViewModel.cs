@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TabataTimer.Models;
-using TabataTimer.Services;
+using TabataTimer.Services.Interfaces;
 using TabataTimer.Views;
 
 namespace TabataTimer.ViewModels;
@@ -69,8 +69,10 @@ public partial class MainWindowViewModel : ViewModelBase
     private void StartSequence(TabataSequenceViewModel? seqVm)
     {
         if (seqVm == null) return;
-        var timerWin = new TimerWindow(seqVm.Model, _settings);
-        timerWin.Owner = App.Current.MainWindow;
+        var timerWin = new TimerWindow(seqVm.Model, _settings)
+        {
+            Owner = App.Current.MainWindow
+        };
         timerWin.Closing += (s, e) => _settingsManager.Save(_settings);
         timerWin.ShowDialog();
     }

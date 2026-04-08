@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>tabata.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\tabata.ico</ApplicationIcon>
     <AssemblyName>TabataTimer</AssemblyName>
     <RootNamespace>TabataTimer</RootNamespace>
     <Nullable>enable</Nullable>
@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <None Remove=".claudignore" />
-	  <None Remove="tabata.ico" />
-	  <Resource Include="tabata.ico" />
+		  <None Remove=".claudignore" />
+		  <None Remove="Resources\tabata.ico" />
+		  <Resource Include="Resources\tabata.ico" />
   </ItemGroup>
 
 </Project>

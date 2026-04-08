@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows.Media;
+using TabataTimer.Services.Interfaces;
 using Windows.Media.SpeechSynthesis;
 
 namespace TabataTimer.Services
@@ -36,11 +37,11 @@ namespace TabataTimer.Services
 
         /// <summary>Returns all installed TTS voices.</summary>
         public IReadOnlyList<VoiceInformation> GetAvailableVoices()
-            => SpeechSynthesizer.AllVoices.ToList();
+            => [.. SpeechSynthesizer.AllVoices];
 
         /// <summary>Static convenience wrapper for GetAvailableVoices().</summary>
         public static IReadOnlyList<VoiceInformation> GetAvailableVoices_Static()
-            => SpeechSynthesizer.AllVoices.ToList();
+            => [.. SpeechSynthesizer.AllVoices];
 
         /// <summary>
         /// Speak text asynchronously on a dedicated background thread.
@@ -141,8 +142,9 @@ namespace TabataTimer.Services
             _disposed = true;
             try { _synth.Dispose(); } catch { }
 
-            if (_playerDispatcher != null)
-                _playerDispatcher.InvokeShutdown();
+            _playerDispatcher?.InvokeShutdown();
+
+            GC.SuppressFinalize(this);
         }
     }
 }

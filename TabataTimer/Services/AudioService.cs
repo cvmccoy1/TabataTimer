@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Threading;
+using TabataTimer.Services.Interfaces;
 
 namespace TabataTimer.Services
 {
@@ -44,16 +45,16 @@ namespace TabataTimer.Services
             _midWorkFile  = Path.Combine(_tempDir, $"midwork_{id}.wav");
 
             // Warning: short high tick
-            WriteWav(_warningFile, new[] { (880.0, 90) });
+            WriteWav(_warningFile, [(880.0, 90)]);
 
             // Phase end: double mid beep
-            WriteWav(_phaseEndFile, new[] { (660.0, 130), (0.0, 80), (660.0, 130) });
+            WriteWav(_phaseEndFile, [(660.0, 130), (0.0, 80), (660.0, 130)]);
 
             // Final: ascending C5-E5-G5 fanfare
-            WriteWav(_finalFile, new[] { (523.0, 210), (0.0, 60), (659.0, 210), (0.0, 60), (784.0, 480) });
+            WriteWav(_finalFile, [(523.0, 210), (0.0, 60), (659.0, 210), (0.0, 60), (784.0, 480)]);
 
             // Mid-work: ascending two-note signal for * exercises
-            WriteWav(_midWorkFile, new[] { (523.0, 120), (0.0, 40), (660.0, 160) });
+            WriteWav(_midWorkFile, [(523.0, 120), (0.0, 40), (660.0, 160)]);
         }
 
         public void SetVolume(double volume) => _volume = Math.Clamp(volume, 0.0, 1.0);
@@ -69,6 +70,7 @@ namespace TabataTimer.Services
             TryDelete(_phaseEndFile);
             TryDelete(_finalFile);
             TryDelete(_midWorkFile);
+            GC.SuppressFinalize(this);
         }
 
         private static void TryDelete(string path)
@@ -88,8 +90,10 @@ namespace TabataTimer.Services
             {
                 try
                 {
-                    var player = new MediaPlayer();
-                    player.Volume = _volume;
+                    var player = new MediaPlayer
+                    {
+                        Volume = _volume
+                    };
                     player.Open(new Uri(path, UriKind.Absolute));
 
                     // Wait for it to open then play

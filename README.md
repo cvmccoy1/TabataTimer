@@ -172,7 +172,8 @@ TabataTimer/
     ├── MainWindow.xaml / .cs            <- Sequence list (main screen)
     ├── EditSequenceWindow.xaml / .cs    <- Create and edit a sequence + call-out config
     ├── TimerWindow.xaml / .cs           <- Active timer screen with TTS call-out display
-    ├── tabata.ico                       <- Application icon
+    ├── Resources/
+    │   └── tabata.ico                   <- Application icon
     ├── Models/
     │   └── TabataSequence.cs            <- TabataSequence, WindowLayout, and AppSettings models
     └── Services/

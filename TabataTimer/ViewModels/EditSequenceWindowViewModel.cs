@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TabataTimer.Models;
 using TabataTimer.Services;
+using TabataTimer.Services.Interfaces;
 using Windows.Media.SpeechSynthesis;
 
 namespace TabataTimer.ViewModels;
@@ -32,21 +33,21 @@ public partial class EditSequenceWindowViewModel : ObservableObject
     private readonly TabataSequence? _original;
     private readonly AppSettings _settings;
     private readonly List<TabataSequence> _allSequences;
-    private readonly ITtsService _tts;
+    private readonly TtsService _tts;
     private readonly Action<WindowLayout> _saveLayout;
 
     // ── Available voices ─────────────────────────────────────────────────────
     public IReadOnlyList<VoiceInformation> AvailableVoices { get; }
 
     // ── Constraints ──────────────────────────────────────────────────────────
-    public int WaitMin => TimerConstraints.WaitMin;
-    public int WaitMax => TimerConstraints.WaitMax;
-    public int RepeatsMin => TimerConstraints.RepeatsMin;
-    public int RepeatsMax => TimerConstraints.RepeatsMax;
-    public int WorkMin => TimerConstraints.WorkMin;
-    public int WorkMax => TimerConstraints.WorkMax;
-    public int RestMin => TimerConstraints.RestMin;
-    public int RestMax => TimerConstraints.RestMax;
+    public static int WaitMin => TimerConstraints.WaitMin;
+    public static int WaitMax => TimerConstraints.WaitMax;
+    public static int RepeatsMin => TimerConstraints.RepeatsMin;
+    public static int RepeatsMax => TimerConstraints.RepeatsMax;
+    public static int WorkMin => TimerConstraints.WorkMin;
+    public static int WorkMax => TimerConstraints.WorkMax;
+    public static int RestMin => TimerConstraints.RestMin;
+    public static int RestMax => TimerConstraints.RestMax;
 
     // ── Form fields ───────────────────────────────────────────────────────────
     [ObservableProperty]
@@ -307,7 +308,7 @@ public partial class EditSequenceWindowViewModel : ObservableObject
             WorkSeconds = WorkSeconds,
             RestSeconds = RestSeconds,
             CallOutMode = CallOutMode,
-            CallOutList = CallOutItems.Select(i => i.Text.Trim()).ToList(),
+            CallOutList = [.. CallOutItems.Select(i => i.Text.Trim())],
             VoiceName = SelectedVoice?.DisplayName,
             Volume = Volume,
             WarningBeepEnabled = WarningBeepEnabled

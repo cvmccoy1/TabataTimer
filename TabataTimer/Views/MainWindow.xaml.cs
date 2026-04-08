@@ -1,7 +1,6 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using TabataTimer.Models;
 using TabataTimer.Services;
 using TabataTimer.ViewModels;
 
@@ -26,8 +25,10 @@ namespace TabataTimer.Views
                 settingsManager,
                 static (existing, settings, allSequences) =>
                 {
-                    var dlg = new EditSequenceWindow(existing, settings, allSequences, _ => { });
-                    dlg.Owner = System.Windows.Application.Current.MainWindow;
+                    var dlg = new EditSequenceWindow(existing, settings, allSequences, _ => { })
+                    {
+                        Owner = System.Windows.Application.Current.MainWindow
+                    };
                     return dlg.ShowDialog() == true ? dlg.ResultSequence : null;
                 });
 
@@ -66,7 +67,7 @@ namespace TabataTimer.Views
                 _vm.MoveSequenceCommand.Execute((seq, 1));
         }
 
-        private TabataSequenceViewModel? GetSequenceFromSender(object sender)
+        private static TabataSequenceViewModel? GetSequenceFromSender(object sender)
         {
             if (sender is Button btn && btn.DataContext is TabataSequenceViewModel seq)
                 return seq;

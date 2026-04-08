@@ -1,6 +1,6 @@
 using Windows.Media.SpeechSynthesis;
 
-namespace TabataTimer.Services;
+namespace TabataTimer.Services.Interfaces;
 
 public interface ITtsService : IDisposable
 {

@@ -1,6 +1,6 @@
 using TabataTimer.Models;
 
-namespace TabataTimer.Services;
+namespace TabataTimer.Services.Interfaces;
 
 public interface ISettingsManager
 {

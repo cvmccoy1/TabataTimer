@@ -1,10 +1,9 @@
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TabataTimer.Models;
-using TabataTimer.Services;
+using TabataTimer.Services.Interfaces;
 
 namespace TabataTimer.ViewModels;
 

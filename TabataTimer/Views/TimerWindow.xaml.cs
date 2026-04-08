@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Windows;
 using TabataTimer.Models;
 using TabataTimer.Services;
