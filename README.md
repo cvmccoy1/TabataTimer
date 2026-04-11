@@ -1,6 +1,6 @@
 # Tabata Timer
 
-A standalone WPF desktop application for Tabata and custom interval training. Create, manage, and run any number of named interval sequences, each with configurable wait, repeat, work, and rest times — optionally with spoken exercise call-outs via Windows text-to-speech.
+A standalone WPF desktop application for Tabata and custom interval training. Create, manage, and run any number of named interval sequences, each with configurable wait, repeat, work, and rest times — optionally with spoken exercise call-outs via Windows text-to-speech. Sequences can be organised into a hierarchical folder structure for easy browsing.
 
 ---
 
@@ -34,19 +34,62 @@ build.bat
 ## Features
 
 ### Main Screen
-- Lists all saved sequences with **Wait / Repeat / Work / Rest** values visible per row
-- **+ NEW SEQUENCE** button to create a new sequence
-- Per-row buttons: **Start**, **Edit**, **Delete**
-- Delete prompts for confirmation before removing
+
+The main screen shows the contents of the current folder level. Folders are listed first, followed by sequences.
+
+**Header controls**
+
+| Control | Description |
+|---|---|
+| ◀ BACK | Navigates up one folder level (hidden at root) |
+| 📁 NEW FOLDER | Creates a new folder at the current level |
+| + NEW SEQUENCE | Opens the sequence editor to create a new sequence |
+
+**Breadcrumb bar** — displays the current navigation path (`Home › Folder › Subfolder`). Click any breadcrumb to jump directly to that level. Breadcrumbs also act as drag-drop targets.
+
+**Folder cards** — each folder shows its name and item count, with buttons:
+
+| Button | Behavior |
+|---|---|
+| ▲ / ▼ | Reorder the folder within the current level |
+| 📂 OPEN | Navigate into the folder |
+| ✏ EDIT | Rename the folder |
+| ⎘ COPY | Deep-copy the folder (including all nested content) with a new name |
+| 🗑 DELETE | Delete the folder and all its contents (with confirmation) |
+
+**Sequence cards** — each sequence shows its **Wait / Repeat / Work / Rest** values, with buttons:
+
+| Button | Behavior |
+|---|---|
+| ▲ / ▼ | Reorder the sequence within the current level |
+| ▶ START | Launches the timer for this sequence |
+| ✏ EDIT | Opens the sequence editor |
+| ⎘ COPY | Duplicates the sequence with a new name |
+| 🗑 DELETE | Deletes the sequence (with confirmation) |
+
+**Drag and drop** — any folder or sequence can be dragged and dropped onto a folder card at the current level, or onto any breadcrumb, to move it to that location.
+
+---
+
+### Folder Dialog (New / Rename)
+
+A compact dialog used for both creating and renaming folders.
+
+- Name field with live validation: empty names and duplicate names (case-insensitive, within the same level) are rejected inline
+- Confirm button reads **Save Folder** when creating or **Update Folder** when renaming
+- Enter confirms, Escape cancels
+
+---
 
 ### Sequence Editor (New and Edit)
+
 - Fields: **Name**, **Wait to Start**, **Repeats**, **Work Time**, **Rest Time**
 - Each time field has a linked **slider + text box** — editing either one updates the other
 - Sliders support click-to-position (clicking anywhere on the track jumps the thumb to that point)
 - **Call Out section** — configure spoken exercise announcements (described below)
 - **Validation** prevents saving when:
   - Name is blank
-  - A sequence with the same name already exists (case-insensitive)
+  - A sequence with the same name already exists at the current folder level (case-insensitive)
   - Any numeric field is outside its allowed range
 - Validation errors shown inline; the Save button is disabled until all fields pass
 - **Cancel** discards changes; **Save / Update** commits
@@ -62,8 +105,10 @@ build.bat
 
 All limits are defined once in `Constants.cs` (`TimerConstraints` class). Changing a value there automatically updates the sliders, validation logic, and error messages everywhere in the app.
 
+---
+
 ### Timer Screen
-Launched via the **Start** button on a sequence row.
+Launched via the **Start** button on a sequence card.
 
 #### Display Elements
 
@@ -148,6 +193,7 @@ All settings are saved and restored automatically between sessions. No manual sa
 
 | Setting | Persisted |
 |---|---|
+| Folder hierarchy (names, nesting) | Yes |
 | All sequences (name, wait, repeats, work, rest, call-out config, voice) | Yes |
 | Volume level | Yes |
 | Warning Beep on/off | Yes |
@@ -165,22 +211,42 @@ Storage location: `%APPDATA%\TabataTimer\settings.json`
 TabataTimer/
 ├── build.bat                            <- Command-line build and publish script
 ├── README.md                            <- This file
+├── CLAUDE.md                            <- AI assistant conventions for this project
 └── TabataTimer/
     ├── TabataTimer.csproj               <- Project file (.NET 8, WPF, win-x64, self-contained)
     ├── App.xaml / App.xaml.cs           <- Application entry point and global dark theme styles
     ├── Constants.cs                     <- All field min/max limits (single source of truth)
-    ├── MainWindow.xaml / .cs            <- Sequence list (main screen)
-    ├── EditSequenceWindow.xaml / .cs    <- Create and edit a sequence + call-out config
-    ├── TimerWindow.xaml / .cs           <- Active timer screen with TTS call-out display
-    ├── Resources/
-    │   └── tabata.ico                   <- Application icon
     ├── Models/
-    │   └── TabataSequence.cs            <- TabataSequence, WindowLayout, and AppSettings models
-    └── Services/
-        ├── AudioService.cs              <- PCM WAV tone synthesis and MediaPlayer playback
-        ├── CallOutEngine.cs            <- Exercise selection logic (Follow/Repeat/Random modes)
-        ├── TtsService.cs               <- Windows.Media.SpeechSynthesis TTS playback
-        └── SettingsManager.cs           <- JSON persistence to %APPDATA%
+    │   └── TabataSequence.cs            <- TabataSequence, SequenceFolder, WindowLayout, AppSettings
+    ├── ViewModels/
+    │   ├── ViewModelBase.cs             <- Base class (ObservableObject)
+    │   ├── MainWindowViewModel.cs       <- Folder navigation, sequence/folder CRUD, drag-drop logic
+    │   ├── FolderViewModel.cs           <- Wraps SequenceFolder for display
+    │   ├── BreadcrumbItem.cs            <- Navigation breadcrumb data (name, folder ref, command)
+    │   ├── TabataSequenceViewModel.cs   <- Wraps TabataSequence for display
+    │   ├── EditSequenceWindowViewModel.cs  <- Sequence editor form logic and validation
+    │   └── TimerWindowViewModel.cs      <- Active timer state, phase control, call-out dispatch
+    ├── Views/
+    │   ├── MainWindow.xaml / .cs        <- Main screen: folder/sequence list, breadcrumbs, drag-drop
+    │   ├── FolderNameWindow.xaml / .cs  <- Folder create/rename dialog
+    │   ├── EditSequenceWindow.xaml / .cs   <- Sequence editor
+    │   └── TimerWindow.xaml / .cs       <- Active timer screen
+    ├── Services/
+    │   ├── Interfaces/
+    │   │   ├── IAudioService.cs
+    │   │   ├── ICallOutEngine.cs
+    │   │   ├── ISettingsManager.cs
+    │   │   └── ITtsService.cs
+    │   ├── AudioService.cs              <- PCM WAV tone synthesis and MediaPlayer playback
+    │   ├── CallOutEngine.cs             <- Exercise selection logic (Follow/Repeat/Random modes)
+    │   ├── SettingsManager.cs           <- JSON persistence to %APPDATA%
+    │   ├── TtsService.cs                <- Windows.Media.SpeechSynthesis TTS playback
+    │   └── WindowLayoutService.cs       <- Window position/size helpers
+    ├── Converters/
+    │   ├── BoolToVisibilityConverter.cs <- bool → Visibility (supports ConverterParameter=Invert)
+    │   └── EnumToBoolConverter.cs       <- Enum value → bool (for radio-button binding)
+    └── Resources/
+        └── tabata.ico                   <- Application icon
 ```
 
 ---
@@ -189,6 +255,7 @@ TabataTimer/
 
 | Package | Version | Purpose |
 |---|---|---|
+| CommunityToolkit.Mvvm | 8.2.2 | `[ObservableProperty]` and `[RelayCommand]` source generators |
 | Newtonsoft.Json | 13.0.3 | Serializing settings to and from JSON |
 
 TTS uses `Windows.Media.SpeechSynthesis` (WinRT API), available directly in .NET 8 Windows applications. No additional packages required. All other functionality uses the .NET 8 and WPF standard libraries.
@@ -198,6 +265,12 @@ TTS uses `Windows.Media.SpeechSynthesis` (WinRT API), available directly in .NET
 ## Developer Notes
 
 **Changing field limits** — edit `TimerConstraints` in `Constants.cs` only. Slider bounds are set in the `EditSequenceWindow` constructor; validation messages are built dynamically from the same constants. No other files need to change.
+
+**Folder navigation** — `MainWindowViewModel._folderPath` is a `List<SequenceFolder>` that tracks the current navigation level. An empty list means root. `CurrentSequences` and `CurrentSubFolders` are computed properties that read from either `AppSettings.Sequences`/`AppSettings.RootFolders` (root) or the current folder's own collections. All CRUD and reorder operations go through these properties so they work correctly at any depth.
+
+**Drag-and-drop** — initiated in `MainWindow.xaml.cs` via `PreviewMouseLeftButtonDown` / `MouseMove` on each card. Button clicks inside cards are excluded via `IsInsideButton()` walk up the visual tree. The drag payload is the raw ViewModel object (`FolderViewModel` or `TabataSequenceViewModel`). Drop targets are folder cards and breadcrumb buttons. The ViewModel's `MoveItemToFolder` / `MoveItemToBreadcrumb` methods perform the actual move and call `PersistAndRefresh`.
+
+**Button styles** — defined in `App.xaml`. Available styles: `AccentButton` (orange-red), `GreenButton`, `BlueButton`, `YellowButton`, `RedButton`, `CyanButton` (used for NEW FOLDER), `GhostButton`. All share `BaseButtonStyle` with a rounded template and pressed/disabled triggers.
 
 **Audio routing** — `AudioService` uses WPF `MediaPlayer` on a dedicated STA background thread. `Console.Beep()` and `SoundPlayer` were intentionally avoided as they use legacy Windows audio APIs that ignore the current default output device and fail silently on HDMI, Bluetooth, and Remote Desktop sessions.
 
