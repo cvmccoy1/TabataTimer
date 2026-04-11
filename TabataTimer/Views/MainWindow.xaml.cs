@@ -87,6 +87,18 @@ public partial class MainWindow : Window
     private static TabataSequenceViewModel? GetSequenceFromSender(object sender)
         => sender is Button { DataContext: TabataSequenceViewModel seq } ? seq : null;
 
+    private void MoveFolderUp_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { DataContext: FolderViewModel folder })
+            _vm.MoveFolderCommand.Execute((folder, -1));
+    }
+
+    private void MoveFolderDown_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { DataContext: FolderViewModel folder })
+            _vm.MoveFolderCommand.Execute((folder, 1));
+    }
+
     // ── Drag initiation ──────────────────────────────────────────────────────
 
     private void Card_MouseDown(object sender, MouseButtonEventArgs e)

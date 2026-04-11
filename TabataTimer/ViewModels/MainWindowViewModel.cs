@@ -270,6 +270,18 @@ public partial class MainWindowViewModel : ViewModelBase
         PersistAndRefresh();
     }
 
+    [RelayCommand]
+    private void MoveFolder((FolderViewModel folder, int direction) req)
+    {
+        int idx = CurrentSubFolders.FindIndex(f => f.Id == req.folder.Id);
+        int newIdx = idx + req.direction;
+        if (newIdx < 0 || newIdx >= CurrentSubFolders.Count) return;
+        var model = CurrentSubFolders[idx];
+        CurrentSubFolders.RemoveAt(idx);
+        CurrentSubFolders.Insert(newIdx, model);
+        PersistAndRefresh();
+    }
+
     // ── Drag-drop moves ──────────────────────────────────────────────────────
 
     /// <summary>Drop an item onto a folder card at the current level.</summary>
