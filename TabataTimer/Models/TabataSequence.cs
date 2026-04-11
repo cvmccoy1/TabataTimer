@@ -55,9 +55,18 @@ namespace TabataTimer.Models
         public double Height { get; set; } = 650;
     }
 
+    public class SequenceFolder
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Name { get; set; } = "New Folder";
+        public List<SequenceFolder> SubFolders { get; set; } = [];
+        public List<TabataSequence> Sequences { get; set; } = [];
+    }
+
     public class AppSettings
     {
         public List<TabataSequence> Sequences { get; set; } = [];
+        public List<SequenceFolder> RootFolders { get; set; } = [];
         public double Volume { get; set; } = 0.8;
         public bool WarningBeepEnabled { get; set; } = true;
         public WindowLayout MainWindowLayout { get; set; } = new();

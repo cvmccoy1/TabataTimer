@@ -1,0 +1,43 @@
+<Window x:Class="TabataTimer.Views.FolderNameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Height="225" Width="420"
+        ResizeMode="NoResize"
+        Background="{StaticResource BackgroundBrush}"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI"
+        KeyDown="Window_KeyDown">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="FOLDER NAME" Style="{StaticResource FieldLabel}"/>
+
+        <TextBox Grid.Row="1" x:Name="NameBox"
+                 Style="{StaticResource ModernTextBox}"
+                 MaxLength="60"
+                 TextChanged="NameBox_TextChanged"/>
+
+        <TextBlock Grid.Row="2" x:Name="ErrorText"
+                   Foreground="#EF4444" FontSize="11"
+                   Margin="0,5,0,0" MinHeight="16"/>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="Cancel"
+                    Style="{StaticResource GhostButton}"
+                    Padding="16,8" Margin="0,0,8,0"
+                    Click="Cancel_Click"/>
+            <Button x:Name="OkButton"
+                    Style="{StaticResource AccentButton}"
+                    Padding="24,8"
+                    IsEnabled="False"
+                    Click="OK_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
