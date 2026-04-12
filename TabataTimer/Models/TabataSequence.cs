@@ -39,11 +39,28 @@ namespace TabataTimer.Models
         public string WorkDisplay => FormatTime(WorkSeconds);
         public string RestDisplay => FormatTime(RestSeconds);
 
+        public string TotalDisplay
+        {
+            get
+            {
+                int total = WaitSeconds + (Repeats * WorkSeconds) + ((Repeats - 1) * RestSeconds);
+                return FormatTotalTime(total);
+            }
+        }
+
         private static string FormatTime(int seconds)
         {
             int m = seconds / 60;
             int s = seconds % 60;
             return $"{m:D2}:{s:D2}";
+        }
+
+        private static string FormatTotalTime(int seconds)
+        {
+            int h = seconds / 3600;
+            int m = (seconds % 3600) / 60;
+            int s = seconds % 60;
+            return h > 0 ? $"{h}:{m:D2}:{s:D2}" : $"{m:D2}:{s:D2}";
         }
     }
 

@@ -14,6 +14,7 @@ public class TabataSequenceViewModel
     public string RepeatsDisplay => $"{_model.Repeats}×";
     public string WorkDisplay => _model.WorkDisplay;
     public string RestDisplay => _model.RestDisplay;
+    public string TotalDisplay => _model.TotalDisplay;
 
     public TabataSequence Model => _model;
 }
