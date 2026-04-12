@@ -129,6 +129,20 @@ public partial class MainWindow : Window
         DragDrop.DoDragDrop((DependencyObject)sender, new DataObject("TabataTimerItem", item), DragDropEffects.Move);
     }
 
+    private void Card_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        var item = _draggedItem;
+        _draggedItem = null;
+        if (item == null) return;
+
+        if (item is FolderViewModel folder)
+            _vm.OpenFolderCommand.Execute(folder);
+        else if (item is TabataSequenceViewModel seq)
+            _vm.StartSequenceCommand.Execute(seq);
+
+        e.Handled = true;
+    }
+
     private static bool IsInsideButton(DependencyObject element)
     {
         var obj = element;

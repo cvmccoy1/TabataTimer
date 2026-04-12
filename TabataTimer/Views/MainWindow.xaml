@@ -23,6 +23,7 @@
                     AllowDrop="True"
                     PreviewMouseLeftButtonDown="Card_MouseDown"
                     MouseMove="Card_MouseMove"
+                    MouseLeftButtonUp="Card_MouseUp"
                     DragEnter="FolderCard_DragEnter"
                     DragLeave="FolderCard_DragLeave"
                     DragOver="FolderCard_DragOver"
@@ -107,7 +108,8 @@
                     Margin="0,0,0,8"
                     Padding="20,16,20,16"
                     PreviewMouseLeftButtonDown="Card_MouseDown"
-                    MouseMove="Card_MouseMove">
+                    MouseMove="Card_MouseMove"
+                    MouseLeftButtonUp="Card_MouseUp">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
