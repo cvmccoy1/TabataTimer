@@ -14,8 +14,8 @@ namespace TabataTimer.Services
         // Follow / Repeat tracking
         private int _followIndex = 0;
 
-        // Per-slot exercise tracking (for cycling through comma-separated exercises)
-        private readonly Dictionary<int, int> _slotExerciseIndices = [];
+        // Global set of exercises already called out this run (shared across all slots for deduplication)
+        private readonly HashSet<string> _usedExercises = [];
 
         // Random tracking — exercises already used this cycle
         private readonly List<string> _randomPool = [];
@@ -38,7 +38,7 @@ namespace TabataTimer.Services
         public void Reset()
         {
             _followIndex = 0;
-            _slotExerciseIndices.Clear();
+            _usedExercises.Clear();
             _randomPool.Clear();
             _randomUsed.Clear();
 
@@ -75,9 +75,8 @@ namespace TabataTimer.Services
                 return null;
 
             var slot = _sequence.CallOutList[_followIndex];
-            int slotIndex = _followIndex;
             _followIndex++;
-            return PickFromSlot(slotIndex, slot);
+            return PickFromSlot(slot);
         }
 
         // ── Repeat ────────────────────────────────────────────────────────────
@@ -89,7 +88,7 @@ namespace TabataTimer.Services
             int slotIndex = _followIndex % _sequence.CallOutList.Count;
             var slot = _sequence.CallOutList[slotIndex];
             _followIndex++;
-            return PickFromSlot(slotIndex, slot);
+            return PickFromSlot(slot);
         }
 
         // ── Random ────────────────────────────────────────────────────────────
@@ -118,9 +117,11 @@ namespace TabataTimer.Services
 
         /// <summary>
         /// A slot may be blank, a single exercise, or comma-separated exercises.
-        /// If multiple, cycles through them sequentially, wrapping around when exhausted.
+        /// If multiple, picks randomly while avoiding exercises already called out
+        /// elsewhere in the sequence. Only after all options are exhausted globally
+        /// will they become eligible again.
         /// </summary>
-        private string? PickFromSlot(int slotIndex, string? slot)
+        private string? PickFromSlot(string? slot)
         {
             if (string.IsNullOrWhiteSpace(slot)) return null;
 
@@ -132,15 +133,20 @@ namespace TabataTimer.Services
             if (parts.Count == 0) return null;
             if (parts.Count == 1) return parts[0];
 
-            // Get current index for this slot, default to 0
-            if (!_slotExerciseIndices.TryGetValue(slotIndex, out int currentIndex))
-                currentIndex = 0;
+            // Filter out options already called out globally this run
+            var available = parts.Where(p => !_usedExercises.Contains(p)).ToList();
 
-            // Cycle through exercises sequentially
-            string exercise = parts[currentIndex];
-            _slotExerciseIndices[slotIndex] = (currentIndex + 1) % parts.Count;
+            // If all options for this slot have been used, reset just these options
+            if (available.Count == 0)
+            {
+                foreach (var p in parts)
+                    _usedExercises.Remove(p);
+                available = parts;
+            }
 
-            return exercise;
+            string chosen = available[_rng.Next(available.Count)];
+            _usedExercises.Add(chosen);
+            return chosen;
         }
 
         private void BuildRandomPool()
