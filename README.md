@@ -67,7 +67,10 @@ The main screen shows the contents of the current folder level. Folders are list
 | ⎘ COPY | Duplicates the sequence with a new name |
 | 🗑 DELETE | Deletes the sequence (with confirmation) |
 
-**Drag and drop** — any folder or sequence can be dragged and dropped onto a folder card at the current level, or onto any breadcrumb, to move it to that location.
+**Drag and drop** — any folder or sequence card can be:
+- Dragged onto another **folder card** to move it into that folder
+- Dragged onto a **breadcrumb** to move it to that folder level
+- Dragged **between cards** in the current view to reorder it — an orange insertion line shows the target position; folders can only be reordered within the folder section and sequences within the sequence section
 
 ---
 
@@ -173,8 +176,9 @@ A sequence can be configured to announce the current exercise aloud at the start
 
 **Call Out List** — each entry corresponds to one repeat slot:
 - A slot may be a single exercise (e.g., `Jumping Jacks`) or multiple comma-separated exercises (e.g., `Burpees, Mountain Climbers, Squats`)
-- When a slot has multiple exercises, one is chosen at random (avoiding recent repeats)
+- When a slot has multiple exercises, one is chosen **randomly** without repeating any option that has already been called out earlier in the sequence; only after every option in the slot has been used will any option repeat
 - In Follow mode the list is auto-sized to match the Repeats count; in Repeat and Random modes entries can be freely added or removed up to the Repeats limit
+- Entries can be **dragged to reorder** using the `≡` handle on the left of each row
 
 **Voice Selection** — any installed Windows TTS voice can be chosen; a **Test** button previews the selected voice. The chosen voice is stored per-sequence.
 
@@ -268,7 +272,12 @@ TTS uses `Windows.Media.SpeechSynthesis` (WinRT API), available directly in .NET
 
 **Folder navigation** — `MainWindowViewModel._folderPath` is a `List<SequenceFolder>` that tracks the current navigation level. An empty list means root. `CurrentSequences` and `CurrentSubFolders` are computed properties that read from either `AppSettings.Sequences`/`AppSettings.RootFolders` (root) or the current folder's own collections. All CRUD and reorder operations go through these properties so they work correctly at any depth.
 
-**Drag-and-drop** — initiated in `MainWindow.xaml.cs` via `PreviewMouseLeftButtonDown` / `MouseMove` on each card. Button clicks inside cards are excluded via `IsInsideButton()` walk up the visual tree. The drag payload is the raw ViewModel object (`FolderViewModel` or `TabataSequenceViewModel`). Drop targets are folder cards and breadcrumb buttons. The ViewModel's `MoveItemToFolder` / `MoveItemToBreadcrumb` methods perform the actual move and call `PersistAndRefresh`.
+**Drag-and-drop (main window)** — initiated in `MainWindow.xaml.cs` via `PreviewMouseLeftButtonDown` / `MouseMove` on each card. Button clicks inside cards are excluded via `IsInsideButton()`. The drag payload is the raw ViewModel object (`FolderViewModel` or `TabataSequenceViewModel`) under the format key `"TabataTimerItem"`. Three drop target types are supported:
+- **Folder cards** (`FolderCard_Drop`) — move the dragged item into that folder; highlights the card's border in orange while hovering
+- **Breadcrumbs** (`Breadcrumb_Drop`) — move the dragged item to that folder level
+- **`ItemsGrid`** (the named `Grid` wrapping the `ScrollViewer`) — reorder the item within the current level; an orange 3px `InsertionIndicator` border is positioned at the midpoint of the nearest gap using `TranslatePoint` for scroll-aware coordinate conversion; folders are clamped to the folder section and sequences to the sequence section; the `ReorderItem` method on the ViewModel performs the actual move
+
+**Drag-and-drop (Call Out list)** — initiated in `EditSequenceWindow.xaml.cs` via `PreviewMouseLeftButtonDown` / `PreviewMouseMove` on the DataTemplate row `Grid`. Drags from a `TextBox` source are suppressed so text editing is unaffected. The drag payload is a `CallOutItemViewModel` under format key `"CallOutItem"`. The `CallOutListGrid` named `Grid` is the drop target; it shows the same `InsertionIndicator` overlay on hover and calls `MoveCallOutItem` on the ViewModel on drop. `VirtualizingStackPanel.IsVirtualizing="False"` is set on the `ListBox` to ensure all item containers are in the visual tree for coordinate calculations.
 
 **Button styles** — defined in `App.xaml`. Available styles: `AccentButton` (orange-red), `GreenButton`, `BlueButton`, `YellowButton`, `RedButton`, `CyanButton` (used for NEW FOLDER), `GhostButton`. All share `BaseButtonStyle` with a rounded template and pressed/disabled triggers.
 
