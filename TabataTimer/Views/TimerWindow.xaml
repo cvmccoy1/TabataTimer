@@ -52,13 +52,15 @@
                     CornerRadius="12" Padding="20,10"
                     Visibility="{Binding ExerciseVisible, Converter={StaticResource BoolToVisibility}}"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <TextBlock Text="{Binding ExerciseLabel}"
-                           FontSize="28" FontWeight="Bold"
-                           FontFamily="Segoe UI Black"
-                           Foreground="{StaticResource GreenBrush}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           TextAlignment="Center"/>
+                <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                    <TextBlock Text="{Binding ExerciseLabel}"
+                               FontSize="28" FontWeight="Bold"
+                               FontFamily="Segoe UI Black"
+                               Foreground="{StaticResource GreenBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               TextAlignment="Center"/>
+                </Viewbox>
             </Border>
         </Grid>
 
