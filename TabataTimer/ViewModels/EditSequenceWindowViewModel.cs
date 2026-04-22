@@ -208,6 +208,19 @@ public partial class EditSequenceWindowViewModel : ObservableObject
             CallOutItems[i].Index = i + 1;
     }
 
+    /// <summary>Reorder a Call Out entry by drag-drop.</summary>
+    public void MoveCallOutItem(CallOutItemViewModel item, int targetIndex)
+    {
+        int fromIndex = CallOutItems.IndexOf(item);
+        if (fromIndex < 0 || targetIndex < 0 || targetIndex > CallOutItems.Count) return;
+        if (fromIndex == targetIndex || fromIndex + 1 == targetIndex) return;
+
+        CallOutItems.RemoveAt(fromIndex);
+        CallOutItems.Insert(targetIndex > fromIndex ? targetIndex - 1 : targetIndex, item);
+        ReindexCallOutItems();
+        SelectedCallOutItem = item;
+    }
+
     [RelayCommand]
     private void AddCallOutItem()
     {

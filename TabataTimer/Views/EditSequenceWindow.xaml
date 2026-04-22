@@ -197,26 +197,43 @@
                     Background="{StaticResource InputBackgroundBrush}"
                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
                     CornerRadius="6" Margin="0,0,0,8">
-                <Grid>
+                <Grid x:Name="CallOutListGrid"
+                      AllowDrop="True"
+                      DragOver="CallOutListGrid_DragOver"
+                      DragLeave="CallOutListGrid_DragLeave"
+                      Drop="CallOutListGrid_Drop">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
-                        <ListBox ItemsSource="{Binding CallOutItems}"
+                        <ListBox x:Name="CallOutListBox"
+                                 ItemsSource="{Binding CallOutItems}"
                                  SelectedItem="{Binding SelectedCallOutItem, Mode=TwoWay}"
                                  Background="Transparent"
                                  BorderThickness="0"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 VirtualizingStackPanel.IsVirtualizing="False">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0,0,0,4">
+                                    <Grid Margin="0,0,0,4"
+                                          PreviewMouseLeftButtonDown="CallOutRow_MouseDown"
+                                          PreviewMouseMove="CallOutRow_PreviewMouseMove"
+                                          MouseLeftButtonUp="CallOutRow_MouseUp">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="32"/>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="30"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0"
+                                        <!-- Drag handle -->
+                                        <TextBlock Grid.Column="0" Text="≡"
+                                                   Foreground="#555555" FontSize="15"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Cursor="SizeAll"
+                                                   ToolTip="Drag to reorder"/>
+                                        <TextBlock Grid.Column="1"
                                                    Text="{Binding Index, StringFormat={}{0}.}"
                                                    Foreground="#A0A0A0" FontSize="12"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Right" Margin="0,0,8,0"/>
-                                        <TextBox Grid.Column="1"
+                                        <TextBox Grid.Column="2"
                                                  Style="{StaticResource ModernTextBox}"
                                                  FontSize="12" Padding="8,5,8,5"
                                                  Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -245,6 +262,13 @@
                             </ListBox.ItemContainerStyle>
                         </ListBox>
                     </ScrollViewer>
+
+                    <!-- Reorder insertion indicator — overlaid, not hit-testable -->
+                    <Border x:Name="CallOutInsertionIndicator"
+                            Height="3" Background="#FF4500" CornerRadius="1.5"
+                            IsHitTestVisible="False" Visibility="Collapsed"
+                            VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                            Margin="8,0,8,0"/>
 
                     <!-- Off-mode overlay -->
                     <Border Background="#88000000" CornerRadius="6"
