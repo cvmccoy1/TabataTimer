@@ -284,6 +284,38 @@ public partial class MainWindowViewModel : ViewModelBase
 
     // ── Drag-drop moves ──────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Reorder an item within the current level.
+    /// <paramref name="targetIndex"/> is in <see cref="CurrentItems"/> space
+    /// (folders occupy 0..N-1, sequences occupy N..N+M-1).
+    /// </summary>
+    public void ReorderItem(object item, int targetIndex)
+    {
+        int folderCount = CurrentSubFolders.Count;
+
+        if (item is FolderViewModel fvm)
+        {
+            if (targetIndex < 0 || targetIndex > folderCount) return;
+            int currentIdx = CurrentSubFolders.FindIndex(f => f.Id == fvm.Id);
+            if (currentIdx < 0) return;
+            var folder = CurrentSubFolders[currentIdx];
+            CurrentSubFolders.RemoveAt(currentIdx);
+            CurrentSubFolders.Insert(targetIndex > currentIdx ? targetIndex - 1 : targetIndex, folder);
+            PersistAndRefresh();
+        }
+        else if (item is TabataSequenceViewModel svm)
+        {
+            int adjusted = targetIndex - folderCount;
+            if (adjusted < 0 || adjusted > CurrentSequences.Count) return;
+            int currentIdx = CurrentSequences.FindIndex(s => s.Id == svm.Id);
+            if (currentIdx < 0) return;
+            var seq = CurrentSequences[currentIdx];
+            CurrentSequences.RemoveAt(currentIdx);
+            CurrentSequences.Insert(adjusted > currentIdx ? adjusted - 1 : adjusted, seq);
+            PersistAndRefresh();
+        }
+    }
+
     /// <summary>Drop an item onto a folder card at the current level.</summary>
     public void MoveItemToFolder(object item, SequenceFolder targetFolder)
     {

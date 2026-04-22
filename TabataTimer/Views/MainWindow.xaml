@@ -317,17 +317,29 @@
         </Border>
 
         <!-- ── Item list ── -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="16">
-            <ItemsControl x:Name="ItemsList"
-                          ItemsSource="{Binding CurrentItems}"
-                          Background="Transparent">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Margin="0,8,0,8"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </ScrollViewer>
+        <Grid Grid.Row="2" x:Name="ItemsGrid"
+              AllowDrop="True"
+              DragOver="ItemsGrid_DragOver"
+              DragLeave="ItemsGrid_DragLeave"
+              Drop="ItemsGrid_Drop">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
+                <ItemsControl x:Name="ItemsList"
+                              ItemsSource="{Binding CurrentItems}"
+                              Background="Transparent">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Margin="0,8,0,8"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+            <!-- Reorder insertion indicator — overlaid, not hit-testable -->
+            <Border x:Name="InsertionIndicator"
+                    Height="3" Background="#FF4500" CornerRadius="1.5"
+                    IsHitTestVisible="False" Visibility="Collapsed"
+                    VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                    Margin="16,0,16,0"/>
+        </Grid>
 
         <!-- ── Empty state ── -->
         <StackPanel Grid.Row="2"
